@@ -14,3 +14,38 @@
 //= require activestorage
 //= require turbolinks
 //= require_tree .
+
+const boardSize = 400,
+      darkSqColor = "brown",
+      lightSqColor = "beige",
+      uiColor = "red",
+      pieces = {},
+      moves = [],
+      board = {};
+
+var boardCanvas, boardCtx, uiCanvas, uiCtx, width, height,
+    dragging = false, dragFrom, dragTo;
+
+document.addEventListener("DOMContentLoaded", init);
+
+
+/* SETUP */
+ function init () {
+     boardCanvas = document.querySelector("canvas");
+     uiCanvas = boardCanvas.nextElementSibling;
+     boardCtx = boardCanvas.getContext("2d");
+     uiCtx = uiCanvas.getContext("2d");
+     width = boardCanvas.width = uiCanvas.width = boardSize;
+     height = boardCanvas.height = uiCanvas.height = boardSize;
+
+ setupPieces();
+ setupBoard();
+ drawBoard();
+ drawPieces();
+}
+
+function setupPieces() {
+    //preload piece images
+}
+
+
