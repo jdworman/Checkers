@@ -45,9 +45,12 @@ document.addEventListener("DOMContentLoaded", init);
 }
 
 function setupPieces() {
-    //preload piece images
+    pieces.b = "♖";
+	pieces.r = "♘";
+    pieces.bk = "♗";
+    pieces.rk = "♗";
 }
-
+ 
 function setupBoard() {
     let squareSize = boardSize/8;
          board.a8 = { x: squareSize * 0, y: squareSize * 0, piece: null };
@@ -163,30 +166,100 @@ if (isValidMove(square)) {
     }
 }
 
+function handleHover(e) {
+	let squareSize = boardSize/8,
+    	player = whoseTurn(), // "b" or "r"
+        lastPosition = moves[moves.length-1],
+        square = getSquareByXY(e.clientX, e.clientY); // find square from mousemove event object;
+  	// check if piece of player's color is on that square
+    if (lastPosition[square].piece && lastPosition[square].piece[0] === player){
+        // if so, highlight square
+        uiCtx.lineWidth = 4;
+        uiCtx.strokeStyle = uiColor;
+        uiCtx.strokeRect(lastPosition[square].x + 2, lastPosition[square].y + 2, squareSize - 4, squareSize - 4);
+        dragFrom = square;
+    }
+    else {
+        dragFrom = null;
+    }
+}
+
+function handleMouseup(e){
+    console.log(dragTo)
+      if (dragging){
+            if (dragTo === null){ //nothing happens if player tries to move to square piece is already on
+              dragFrom = null;
+                dragTo = null;
+                dragging = false;
+                return;
+          }
+          // make player move...
+            //change game state
+            let lastPosition = moves[moves.length-1],
+              newBoard = JSON.parse(JSON.stringify(lastPosition)),
+              piece = newBoard[dragFrom].piece;
+            //move piece
+            newBoard[dragFrom].piece = null;
+            newBoard[dragTo].piece = piece;
+            //add another board to the moves array
+            moves.push(newBoard);
+            //update board/pieces display
+            drawBoard();
+            drawPieces();
+            //reset drag variables
+            dragFrom = null;
+            dragTo = null;
+            dragging = false;
+      }
+  }
+  
+
+/* VALID MOVES */
+function isValidMove(square){
+    // if (dragFrom === "a3" && square === "b4")
+    // return true;
+    // else return false;
+  var legalSquares = ["a1", "c1", "e1", "g1", "b2", "d2", "f2", "h2", "a3", "c3", "e3", "g3", "b4", "d4", "f4", "h4", "a5", "c5", "e5", "g5", "b6", "d6", "f6", "h6", "a7", "c7", "e7", "g7", "b8", "d8", "f8", "h8"]
+  return legalSquares.includes(square);
+        // return (!lastPosition[square].piece || lastPosition[square].piece[0] !== color);
+  }
+  /* HELPERS */
+function whoseTurn(){
+      // if even number of moves in moves array, it's black's turn, otherwise red's
+    return moves.length % 2 === 0 ? "r" : "b";
+}
+function getSquareByXY(x, y){
+    let squareSize = boardSize/8,
+          lastPosition = moves[moves.length-1];
+      for (let square in lastPosition){
+        if (lastPosition[square].x <= x && lastPosition[square].x + squareSize >= x &&
+            lastPosition[square].y <= y && lastPosition[square].y + squareSize >= y) return square;
+    }
+}
+
 /* DRAWING */
 function drawBoard(){
     let squareSize = boardSize/8,
         isLightSq = true;
-        for (let x=0; x<width; x+=squareSize) {
-            for (let y=0; y<height; y+=squareSize) {
-                if (isLightSq) boardCtx.fillStyle = lightSqColor;
-                else boardCtx.fillStyle = darkSqColor; 
-                boardCtx.fillRect(x, y, squareSize, squareSize);
-                isLightSq = !isLightSq;
-            }
+    for (let x=0; x<width; x+=squareSize){
+        for (let y=0; y<height; y+=squareSize){
+            if (isLightSq) boardCtx.fillStyle = lightSqColor;
+            else boardCtx.fillStyle = darkSqColor;
+            boardCtx.fillRect(x, y, squareSize, squareSize);
             isLightSq = !isLightSq;
         }
+        isLightSq = !isLightSq;
+    }
 }
-
-function drawPieces() {
-    let lastPosition = moves[moves.lenth-1]; //get last element of moves array
-    boardCtx.fillStyle = "black";
-    boardCtx.textBaseline ="top";
-    boardCtx.font = "30px Verdana"
-    for (let square in lastPosition) { //iterate through the most recent game state
-        if (lastPosition[square].piece) { 
-boardCtx.fillText(lastPosition[square].piece, lastPosition[square].x, lastPosition[square].y);
+function drawPieces(){
+      let lastPosition = moves[moves.length-1]; // get last element of moves array
+    boardCtx.fillStyle = "black"; // text placeholder
+      boardCtx.textBaseline="top"; // text placeholder
+    boardCtx.font="30px Verdana"; // text placeholder
+    for (let square in lastPosition){ // iterate through the most recent game state
+        if (lastPosition[square].piece){
+            boardCtx.fillText(lastPosition[square].piece, lastPosition[square].x, lastPosition[square].y); // text placeholder
         }
-    } 
-}
+    }
 
+  }
