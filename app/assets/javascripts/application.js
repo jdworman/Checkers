@@ -38,6 +38,10 @@ document.addEventListener("DOMContentLoaded", init);
      width = boardCanvas.width = uiCanvas.width = boardSize;
      height = boardCanvas.height = uiCanvas.height = boardSize;
 
+     uiCanvas.addEventListener("mousedown", handleMousedown);
+     uiCanvas.addEventListener("mousemove", handleMousemove);
+     uiCanvas.addEventListener("mouseup", handleMouseup);
+
  setupPieces();
  setupBoard();
  drawBoard();
@@ -45,10 +49,7 @@ document.addEventListener("DOMContentLoaded", init);
 }
 
 function setupPieces() {
-    pieces.b = "♖";
-	pieces.r = "♘";
-    pieces.bk = "♗";
-    pieces.rk = "♗";
+
 }
  
 function setupBoard() {
@@ -121,33 +122,32 @@ function setupBoard() {
              moves[0] = JSON.parse(JSON.stringify(board)); // deep copy of board
 }
 
+
 /* EVENT HANDLING */
-function handleMousedown(e) {
-    if (dragFrom) {
-        dragging = true;
-    } 
-}
-
-function handleMousemove(e) {
-    uiCtx.clearRect(0, 0, width, height);
-    if (dragging) {
-        handleDrag(e);
-    }
-    else { //not dragging but hovering 
-        handleHover(e);
+function handleMousedown(e){
+	if (dragFrom){
+    	dragging = true;
     }
 }
-
-function handleDrag(e) {
-    let squareSize = boardSize/8,
-    player = whoseTurn(), //"b" or "r"
-    lastPosition = moves[moves.length-1],
-    square = getSquareByXY(e.clientX, e.clientY)  // find square from mousemove event object;
-if (isValidMove(square)) {
-    //currently, can move a piece onto ANY empty square (!lastPosition[square].piece) or an opponent's square (lastPosition[square].piece[0] !== player)
+function handleMousemove(e){
+  	uiCtx.clearRect(0, 0, width, height);
+	if (dragging){
+    	handleDrag(e);
+    }
+  	else { // not dragging but hovering
+      	handleHover(e);
+    }
+}
+function handleDrag(e){
+  	let squareSize = boardSize/8,
+    	player = whoseTurn(), // "b" or "r"
+        lastPosition = moves[moves.length-1],
+        square = getSquareByXY(e.clientX, e.clientY); // find square from mousemove event object;
+	if (isValidMove(square)){
+      	//currently, you can move a piecse onto ANY empty square (!lastPosition[square].piece) or an opponent's square (lastPosition[square].piece[0] !== player)
         // if so, highlight square
         uiCtx.lineWidth = 4;
-        ui.Ctx.strokeStyle = uiColor;
+        uiCtx.strokeStyle = uiColor;
         uiCtx.strokeRect(lastPosition[square].x + 2, lastPosition[square].y + 2, squareSize - 4, squareSize - 4);
         // draw line from original square
         uiCtx.lineWidth = 2;
@@ -165,10 +165,9 @@ if (isValidMove(square)) {
         dragTo = null;
     }
 }
-
-function handleHover(e) {
+function handleHover(e){
 	let squareSize = boardSize/8,
-    	player = whoseTurn(), // "b" or "r"
+    	player = whoseTurn(), // "w" or "b"
         lastPosition = moves[moves.length-1],
         square = getSquareByXY(e.clientX, e.clientY); // find square from mousemove event object;
   	// check if piece of player's color is on that square
@@ -183,47 +182,51 @@ function handleHover(e) {
         dragFrom = null;
     }
 }
-
 function handleMouseup(e){
-    console.log(dragTo)
-      if (dragging){
-            if (dragTo === null){ //nothing happens if player tries to move to square piece is already on
-              dragFrom = null;
-                dragTo = null;
-                dragging = false;
-                return;
-          }
-          // make player move...
-            //change game state
-            let lastPosition = moves[moves.length-1],
-              newBoard = JSON.parse(JSON.stringify(lastPosition)),
-              piece = newBoard[dragFrom].piece;
-            //move piece
-            newBoard[dragFrom].piece = null;
-            newBoard[dragTo].piece = piece;
-            //add another board to the moves array
-            moves.push(newBoard);
-            //update board/pieces display
-            drawBoard();
-            drawPieces();
-            //reset drag variables
-            dragFrom = null;
-            dragTo = null;
-            dragging = false;
-      }
-  }
-  
+  console.log(dragTo)
+	if (dragging){
+      	if (dragTo === null){ //nothing happens if player tries to move to square piece is alread on
+        	dragFrom = null;
+          	dragTo = null;
+          	dragging = false;
+          	return;
+        }
+    	// make player move...
+      	//change game state
+      	let lastPosition = moves[moves.length-1],
+        	newBoard = JSON.parse(JSON.stringify(lastPosition)),
+            piece = newBoard[dragFrom].piece;
+      	//move piece
+      	newBoard[dragFrom].piece = null;
+      	newBoard[dragTo].piece = piece;
+      	//add another board to the moves array
+      	moves.push(newBoard);
+      	//update board/pieces display
+      	drawBoard();
+      	drawPieces();
+      	//reset drag variables
+      	dragFrom = null;
+      	dragTo = null;
+      	dragging = false;
+    }
+}
 
-/* VALID MOVES */
+
+
 function isValidMove(square){
-    // if (dragFrom === "a3" && square === "b4")
-    // return true;
-    // else return false;
-  var legalSquares = ["a1", "c1", "e1", "g1", "b2", "d2", "f2", "h2", "a3", "c3", "e3", "g3", "b4", "d4", "f4", "h4", "a5", "c5", "e5", "g5", "b6", "d6", "f6", "h6", "a7", "c7", "e7", "g7", "b8", "d8", "f8", "h8"]
-  return legalSquares.includes(square);
-        // return (!lastPosition[square].piece || lastPosition[square].piece[0] !== color);
-  }
-  /* HELPERS */
+  // if (dragFrom === "a3" && square === "b4")
+  // return true;
+  // else return false;
+var legalSquares = ["a1", "c1", "e1", "g1", "b2", "d2", "f2", "h2", "a3", "c3", "e3", "g3", "b4", "d4", "f4", "h4", "a5", "c5", "e5", "g5", "b6", "d6", "f6", "h6", "a7", "c7", "e7", "g7", "b8", "d8", "f8", "h8"]
+return legalSquares.includes(square);
+      // return (!lastPosition[square].piece || lastPosition[square].piece[0] !== color);
+}
+
+
+
+
+
+/* HELPERS */
 function whoseTurn(){
       // if even number of moves in moves array, it's black's turn, otherwise red's
     return moves.length % 2 === 0 ? "r" : "b";
