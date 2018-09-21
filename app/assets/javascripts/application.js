@@ -24,7 +24,6 @@ const boardSize = 400,
       board = {};
 
 var boardCanvas, boardCtx, uiCanvas, uiCtx, width, height,
-    dragging = false, dragFrom, dragTo;
 
 document.addEventListener("DOMContentLoaded", init);
 
@@ -46,6 +45,21 @@ document.addEventListener("DOMContentLoaded", init);
 
 function setupPieces() {
     //preload piece images
+}
+
+/* DRAWING */
+function drawBoard(){
+    let squareSize = boardSize/8,
+        isLightSq = true;
+        for (let x=0; x<width; x+=squareSize) {
+            for (let y=0; y<height; y+=squareSize) {
+                if (isLightSq) boardCtx.fillStyle = lightSqColor;
+                else boardCtx.fillStyle = darkSqColor; 
+                boardCtx.fillRect(x, y, squareSize, sqaureSize);
+                isLightSq = !isLightSq;
+            }
+            isLightSq = !isLightSq;
+        }
 }
 
 
