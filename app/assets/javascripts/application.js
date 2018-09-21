@@ -14,6 +14,7 @@
 //= require activestorage
 //= require turbolinks
 //= require_tree .
+//= require json
 
 const boardSize = 400,
       darkSqColor = "brown",
