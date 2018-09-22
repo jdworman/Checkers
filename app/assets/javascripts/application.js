@@ -14,7 +14,6 @@
 //= require activestorage
 //= require turbolinks
 //= require_tree .
-//= require json
 
 const boardSize = 400,
       darkSqColor = "brown",
@@ -214,14 +213,45 @@ function handleMouseup(e){
 
 
 
-function isValidMove(square){
-  // if (dragFrom === "a3" && square === "b4")
-  // return true;
-  // else return false;
-var legalSquares = ["a1", "c1", "e1", "g1", "b2", "d2", "f2", "h2", "a3", "c3", "e3", "g3", "b4", "d4", "f4", "h4", "a5", "c5", "e5", "g5", "b6", "d6", "f6", "h6", "a7", "c7", "e7", "g7", "b8", "d8", "f8", "h8"]
-return legalSquares.includes(square);
-      // return (!lastPosition[square].piece || lastPosition[square].piece[0] !== color);
+function isValidMove(square){ //return true or false
+	
+	let fromSq = dragFrom,
+        fromFile = fromSq[0], //"a", "b", etc.
+        fromRank = Number(fromSq[1]), //"3", "4", etc.
+        fromFileNum = fromFile.charCodeAt(0), //number representation of letter
+        movingPieceColor = moves[moves.length-1][fromSq].piece,
+        toSq = square,
+        toFile = toSq[0], //"a", "b", etc.
+        toRank = Number(toSq[1]), //"3", "4", etc.
+        toFileNum = toFile.charCodeAt(0), //number representation of letter
+        pieceOnToSq = moves[moves.length-1][toSq].piece; //null, "b", or "r"
+	
+  	//can't move onto square with own piece already on it
+  	if (pieceOnToSq === movingPieceColor) return false;
+  	//move onto empty square must be forward and diagonal
+  	if (!pieceOnToSq){
+      	//moving one rank
+    	if (movingPieceColor === "b" && toRank === fromRank + 1 && Math.abs(toFileNum - fromFileNum) === 1) return true;
+      	if (movingPieceColor === "r" && toRank === fromRank - 1 && Math.abs(toFileNum - fromFileNum) === 1) return true;
+      	//moving two ranks
+      	if (movingPieceColor === "b" && toRank === fromRank + 2 && Math.abs(toFileNum - fromFileNum) === 2){
+        	//is there a red piece to jump over?
+          	let jumpedSq = String.fromCharCode(fromFileNum + (toFileNum - fromFileNum)/2) + (toRank - 1),
+                jumpedPiece = moves[moves.length-1][jumpedSq];
+          	return jumpedPiece === "r";
+        }
+      	if (movingPieceColor === "r" && toRank === fromRank - 2 && Math.abs(toFileNum - fromFileNum) === 2){
+        	//is there a black piece to jump over?
+          	let jumpedSq = String.fromCharCode(fromFileNum + (toFileNum - fromFileNum)/2) + (toRank + 1),
+                jumpedPiece = moves[moves.length-1][jumpedSq];
+          	return jumpedPiece === "b";
+        }
+    }
+  	return false;
 }
+
+
+
 
 
 
@@ -240,6 +270,7 @@ function getSquareByXY(x, y){
             lastPosition[square].y <= y && lastPosition[square].y + squareSize >= y) return square;
     }
 }
+
 
 /* DRAWING */
 function drawBoard(){
@@ -265,5 +296,4 @@ function drawPieces(){
             boardCtx.fillText(lastPosition[square].piece, lastPosition[square].x, lastPosition[square].y); // text placeholder
         }
     }
-
   }
