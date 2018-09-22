@@ -237,13 +237,13 @@ function isValidMove(square){ //return true or false
       	if (movingPieceColor === "b" && toRank === fromRank + 2 && Math.abs(toFileNum - fromFileNum) === 2){
         	//is there a red piece to jump over?
           	let jumpedSq = String.fromCharCode(fromFileNum + (toFileNum - fromFileNum)/2) + (toRank - 1),
-                jumpedPiece = moves[moves.length-1][jumpedSq];
+                jumpedPiece = moves[moves.length-1][jumpedSq].piece;
           	return jumpedPiece === "r";
         }
       	if (movingPieceColor === "r" && toRank === fromRank - 2 && Math.abs(toFileNum - fromFileNum) === 2){
         	//is there a black piece to jump over?
           	let jumpedSq = String.fromCharCode(fromFileNum + (toFileNum - fromFileNum)/2) + (toRank + 1),
-                jumpedPiece = moves[moves.length-1][jumpedSq];
+                jumpedPiece = moves[moves.length-1][jumpedSq].piece;
           	return jumpedPiece === "b";
         }
     }
