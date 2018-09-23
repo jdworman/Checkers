@@ -28,7 +28,6 @@ dragging = false, dragFrom, dragTo;
 
 document.addEventListener("DOMContentLoaded", init);
 
-
 /* SETUP */
  function init () {
      boardCanvas = document.querySelector("canvas");
@@ -122,14 +121,13 @@ function setupBoard() {
              moves[0] = JSON.parse(JSON.stringify(board)); // deep copy of board
 }
 
-
 /* EVENT HANDLING */
-function handleMousedown(e){
+function handleMousedown(e) {
 	if (dragFrom){
     	dragging = true;
     }
 }
-function handleMousemove(e){
+function handleMousemove(e) {
   	uiCtx.clearRect(0, 0, width, height);
 	if (dragging){
     	handleDrag(e);
@@ -137,14 +135,15 @@ function handleMousemove(e){
   	else { // not dragging but hovering
       	handleHover(e);
     }
+    
 }
-function handleDrag(e){
+function handleDrag(e) {
   	let squareSize = boardSize/8,
     	player = whoseTurn(), // "b" or "r"
         lastPosition = moves[moves.length-1],
         square = getSquareByXY(e.clientX, e.clientY); // find square from mousemove event object;
 	if (isValidMove(square)){
-      	//currently, you can move a piecse onto ANY empty square (!lastPosition[square].piece) or an opponent's square (lastPosition[square].piece[0] !== player)
+      	//currently, you can move a piece onto ANY empty square (!lastPosition[square].piece) or an opponent's square (lastPosition[square].piece[0] !== player)
         // if so, highlight square
         uiCtx.lineWidth = 4;
         uiCtx.strokeStyle = uiColor;
@@ -165,6 +164,7 @@ function handleDrag(e){
         dragTo = null;
     }
 }
+
 function handleHover(e){
 	let squareSize = boardSize/8,
     	player = whoseTurn(), // "w" or "b"
@@ -182,10 +182,11 @@ function handleHover(e){
         dragFrom = null;
     }
 }
+
 function handleMouseup(e){
   console.log(dragTo)
 	if (dragging){
-      	if (dragTo === null){ //nothing happens if player tries to move to square piece is alread on
+      	if (dragTo === null){ //nothing happens if player tries to move to square piece is already on
         	dragFrom = null;
           	dragTo = null;
           	dragging = false;
@@ -210,8 +211,6 @@ function handleMouseup(e){
       	dragging = false;
     }
 }
-
-
 
 function isValidMove(square){ //return true or false
 	
@@ -286,6 +285,7 @@ function drawBoard(){
         isLightSq = !isLightSq;
     }
 }
+
 function drawPieces(){
       let lastPosition = moves[moves.length-1]; // get last element of moves array
     boardCtx.fillStyle = "black"; // text placeholder

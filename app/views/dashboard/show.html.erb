@@ -1,0 +1,8 @@
+Dashboard
+Welcome to your dashboard.
+
+<% if flash[:success] %>
+  <%= flash[:success] %>
+<% end %>
+
+<%= link_to 'Click here to log out.', logout_path %>
