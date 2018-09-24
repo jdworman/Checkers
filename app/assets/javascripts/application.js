@@ -48,9 +48,12 @@ document.addEventListener("DOMContentLoaded", init);
 }
 
 function setupPieces() {
-
+  pieces.b = "/images/black.png";
+	pieces.r = "/images/red.png";
+  pieces.bk = "/images/kblack.png";
+	pieces.rk = "/images/kred.png";
 }
- 
+
 function setupBoard() {
     let squareSize = boardSize/8;
          board.a8 = { x: squareSize * 0, y: squareSize * 0, piece: null };
@@ -121,140 +124,147 @@ function setupBoard() {
              moves[0] = JSON.parse(JSON.stringify(board)); // deep copy of board
 }
 
-/* EVENT HANDLING */
-function handleMousedown(e) {
-	if (dragFrom){
-    	dragging = true;
-    }
-}
-function handleMousemove(e) {
-  	uiCtx.clearRect(0, 0, width, height);
-	if (dragging){
-    	handleDrag(e);
-    }
-  	else { // not dragging but hovering
-      	handleHover(e);
-    }
-    
-}
-function handleDrag(e) {
-  	let squareSize = boardSize/8,
-    	player = whoseTurn(), // "b" or "r"
-        lastPosition = moves[moves.length-1],
-        square = getSquareByXY(e.clientX, e.clientY); // find square from mousemove event object;
-	if (isValidMove(square)){
-      	//currently, you can move a piece onto ANY empty square (!lastPosition[square].piece) or an opponent's square (lastPosition[square].piece[0] !== player)
-        // if so, highlight square
-        uiCtx.lineWidth = 4;
-        uiCtx.strokeStyle = uiColor;
-        uiCtx.strokeRect(lastPosition[square].x + 2, lastPosition[square].y + 2, squareSize - 4, squareSize - 4);
-        // draw line from original square
-        uiCtx.lineWidth = 2;
-        uiCtx.beginPath();
-        let x1 = lastPosition[dragFrom].x + squareSize/2,
-            y1 = lastPosition[dragFrom].y + squareSize/2,
-            x2 = lastPosition[square].x + squareSize/2,
-            y2 = lastPosition[square].y + squareSize/2;
-        uiCtx.moveTo(x1, y1);
-        uiCtx.lineTo(x2, y2);
-        uiCtx.stroke();
-        dragTo = square;
-    }
-    else {
-        dragTo = null;
-    }
-}
 
-function handleHover(e){
-	let squareSize = boardSize/8,
-    	player = whoseTurn(), // "w" or "b"
-        lastPosition = moves[moves.length-1],
-        square = getSquareByXY(e.clientX, e.clientY); // find square from mousemove event object;
-  	// check if piece of player's color is on that square
-    if (lastPosition[square].piece && lastPosition[square].piece[0] === player){
-        // if so, highlight square
-        uiCtx.lineWidth = 4;
-        uiCtx.strokeStyle = uiColor;
-        uiCtx.strokeRect(lastPosition[square].x + 2, lastPosition[square].y + 2, squareSize - 4, squareSize - 4);
-        dragFrom = square;
-    }
-    else {
-        dragFrom = null;
-    }
-}
 
-function handleMouseup(e){
-  console.log(dragTo)
-	if (dragging){
-      	if (dragTo === null){ //nothing happens if player tries to move to square piece is already on
-        	dragFrom = null;
-          	dragTo = null;
-          	dragging = false;
-          	return;
+    /* EVENT HANDLING */
+    function handleMousedown(e) {
+        if (dragFrom) {
+          dragging = true;
         }
-    	// make player move...
-      	//change game state
-      	let lastPosition = moves[moves.length-1],
-        	newBoard = JSON.parse(JSON.stringify(lastPosition)),
+      }
+  
+      function handleMousemove(e) {
+        uiCtx.clearRect(0, 0, width, height);
+        if (dragging) {
+          handleDrag(e);
+        } else { // not dragging but hovering
+          handleHover(e);
+        }
+      }
+  
+      function handleDrag(e) {
+        let squareSize = boardSize / 8,
+          player = whoseTurn(), // "b" or "r"
+          lastPosition = moves[moves.length - 1],
+          square = getSquareByXY(e.clientX, e.clientY); // find square from mousemove event object;        
+        if (jumped = isValidMove(square)) {
+          //currently, you can move a piecse onto ANY empty square (!lastPosition[square].piece) or an opponent's square (lastPosition[square].piece[0] !== player)
+          // if so, highlight square
+          uiCtx.lineWidth = 4;
+          uiCtx.strokeStyle = uiColor;
+          uiCtx.strokeRect(lastPosition[square].x + 2, lastPosition[square].y + 2, squareSize - 4, squareSize - 4);
+          // draw line from original square
+          uiCtx.lineWidth = 2;
+          uiCtx.beginPath();
+          let x1 = lastPosition[dragFrom].x + squareSize / 2,
+            y1 = lastPosition[dragFrom].y + squareSize / 2,
+            x2 = lastPosition[square].x + squareSize / 2,
+            y2 = lastPosition[square].y + squareSize / 2;
+          uiCtx.moveTo(x1, y1);
+          uiCtx.lineTo(x2, y2);
+          uiCtx.stroke();
+          dragTo = square;
+        } else {
+          dragTo = null;
+        }
+      }
+  
+      function handleHover(e) {
+        let squareSize = boardSize / 8,
+          player = whoseTurn(), // "w" or "b"
+          lastPosition = moves[moves.length - 1],
+          square = getSquareByXY(e.clientX, e.clientY); // find square from mousemove event object;
+        // check if piece of player's color is on that square
+        if (lastPosition[square].piece && lastPosition[square].piece[0] === player) {
+          // if so, highlight square
+          uiCtx.lineWidth = 4;
+          uiCtx.strokeStyle = uiColor;
+          uiCtx.strokeRect(lastPosition[square].x + 2, lastPosition[square].y + 2, squareSize - 4, squareSize - 4);
+          dragFrom = square;
+        } else {
+          dragFrom = null;
+        }
+      }
+  
+      function handleMouseup(e) {
+        console.log(dragTo)
+        if (dragging) {
+          if (dragTo === null) { //nothing happens if player tries to move to square piece is already on
+            dragFrom = null;
+            dragTo = null;
+            dragging = false;
+            return;
+          }
+          // make player move...
+          //change game state
+          let lastPosition = moves[moves.length - 1],
+            newBoard = JSON.parse(JSON.stringify(lastPosition)),
             piece = newBoard[dragFrom].piece;
-      	//move piece
-      	newBoard[dragFrom].piece = null;
-      	newBoard[dragTo].piece = piece;
-      	//add another board to the moves array
-      	moves.push(newBoard);
-      	//update board/pieces display
-      	drawBoard();
-      	drawPieces();
-      	//reset drag variables
-      	dragFrom = null;
-      	dragTo = null;
-      	dragging = false;
-    }
-}
-
-function isValidMove(square){ //return true or false
-	
-	let fromSq = dragFrom,
-        fromFile = fromSq[0], //"a", "b", etc.
-        fromRank = Number(fromSq[1]), //"3", "4", etc.
-        fromFileNum = fromFile.charCodeAt(0), //number representation of letter
-        movingPieceColor = moves[moves.length-1][fromSq].piece,
-        toSq = square,
-        toFile = toSq[0], //"a", "b", etc.
-        toRank = Number(toSq[1]), //"3", "4", etc.
-        toFileNum = toFile.charCodeAt(0), //number representation of letter
-        pieceOnToSq = moves[moves.length-1][toSq].piece; //null, "b", or "r"
-	
-  	//can't move onto square with own piece already on it
-  	if (pieceOnToSq === movingPieceColor) return false;
-  	//move onto empty square must be forward and diagonal
-  	if (!pieceOnToSq){
-      	//moving one rank
-    	if (movingPieceColor === "b" && toRank === fromRank + 1 && Math.abs(toFileNum - fromFileNum) === 1) return true;
-      	if (movingPieceColor === "r" && toRank === fromRank - 1 && Math.abs(toFileNum - fromFileNum) === 1) return true;
-      	//moving two ranks
-      	if (movingPieceColor === "b" && toRank === fromRank + 2 && Math.abs(toFileNum - fromFileNum) === 2){
-        	//is there a red piece to jump over?
-          	let jumpedSq = String.fromCharCode(fromFileNum + (toFileNum - fromFileNum)/2) + (toRank - 1),
-                jumpedPiece = moves[moves.length-1][jumpedSq].piece;
-          	return jumpedPiece === "r";
+          //move piece
+          newBoard[dragFrom].piece = null;
+          newBoard[dragTo].piece = piece;
+          //remove if jumped
+          if (newBoard[jumped]) 
+            newBoard[jumped].piece = null
+          //add another board to the moves array
+          moves.push(newBoard);
+          //update board/pieces display
+          drawBoard();
+          drawPieces();
+          //reset drag variables
+          dragFrom = null;
+          dragTo = null;
+          dragging = false;
         }
-      	if (movingPieceColor === "r" && toRank === fromRank - 2 && Math.abs(toFileNum - fromFileNum) === 2){
-        	//is there a black piece to jump over?
-          	let jumpedSq = String.fromCharCode(fromFileNum + (toFileNum - fromFileNum)/2) + (toRank + 1),
-                jumpedPiece = moves[moves.length-1][jumpedSq].piece;
-          	return jumpedPiece === "b";
+      }
+  
+      function isValidMove(square) { //return true or false
+        let fromSq = dragFrom,
+          fromFile = fromSq[0], //"a", "b", etc.
+          fromRank = Number(fromSq[1]), //"3", "4", etc.
+          fromFileNum = fromFile.charCodeAt(0), //number representation of letter
+          movingPieceColor = moves[moves.length - 1][fromSq].piece,
+          toSq = square,
+          toFile = toSq[0], //"a", "b", etc.
+          toRank = Number(toSq[1]), //"3", "4", etc.
+          toFileNum = toFile.charCodeAt(0), //number representation of letter
+          pieceOnToSq = moves[moves.length - 1][toSq].piece; //null, "b", or "r"
+  
+        //can't move onto square with own piece already on it
+        if (pieceOnToSq === movingPieceColor) return false;
+        //move onto empty square must be forward and diagonal
+        if (!pieceOnToSq) {
+          //moving one rank
+          if (movingPieceColor === "b" && toRank === fromRank + 1 && Math.abs(toFileNum - fromFileNum) === 1) return true;
+          if (movingPieceColor === "r" && toRank === fromRank - 1 && Math.abs(toFileNum - fromFileNum) === 1) return true;
+          //moving two ranks
+          if (movingPieceColor === "b" && toRank === fromRank + 2 && Math.abs(toFileNum - fromFileNum) === 2) {
+            //is there a red piece to jump over?
+            let jumpedSq = String.fromCharCode(fromFileNum + (toFileNum - fromFileNum) / 2) + (toRank - 1),
+              jumpedPiece = moves[moves.length - 1][jumpedSq].piece;
+            return (jumpedPiece === "r") ? jumpedSq: false;
+          }
+          if (movingPieceColor === "r" && toRank === fromRank - 2 && Math.abs(toFileNum - fromFileNum) === 2) {
+            //is there a black piece to jump over?
+            let jumpedSq = String.fromCharCode(fromFileNum + (toFileNum - fromFileNum) / 2) + (toRank + 1),
+              jumpedPiece = moves[moves.length - 1][jumpedSq].piece;
+            return (jumpedPiece === "b") ? jumpedSq: false;
+          }
         }
-    }
-  	return false;
-}
+        return false;
+      }
 
-
-
-
-
-
-
+/* KING */
+// function kingMe (x,y) { //The piece made it to the end of the other side
+//   if ("b") //"b" is at the end of the board
+//   if ("b" === 8) { //is king
+//   }
+// }
+// else{
+//   if ("r") //"r" is at the end of the board
+//   if ("r" === 1) { // is king
+//   }
+// }
 
 /* HELPERS */
 function whoseTurn(){
@@ -269,7 +279,6 @@ function getSquareByXY(x, y){
             lastPosition[square].y <= y && lastPosition[square].y + squareSize >= y) return square;
     }
 }
-
 
 /* DRAWING */
 function drawBoard(){
