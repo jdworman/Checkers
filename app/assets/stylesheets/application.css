@@ -24,6 +24,11 @@
      padding: 0;
  }
 
+ * {
+  margin: 0px;
+  padding: 0px;
+  text-decoration: none; }
+
  body {
   background-color: tomato;
   display: grid;
@@ -40,9 +45,22 @@ grid-area: header;
 
 nav {
 grid-area: nav;
-position: absolute;
 display: block;
+background-color: #e5e4d7;
+margin: 10px;
+border-radius: 5px;
+padding: 20px;
 }
+
+footer {
+  grid-area: footer;
+}
+
+main {
+  grid-area: content;
+}
+
+
 
 h1 {
   text-align: center;
@@ -51,18 +69,63 @@ h1 {
   color: gold;
 }
 
+/* Title
+================================= */
+.main-title {
+  position: relative;
+  margin: 0px;
+  padding: 0px;
+  color: #F9F1E9;
+  text-align: center;
+  top: 50%;
+  left: 50%;
+  -webkit-transform: translate3d(-50%, -50%, 0px);
+  transform: translate3d(-50%, -50%, 0);
+}
+
+.main-title {
+  text-transform: uppercase;
+  font-size: 4.2em;
+  letter-spacing: 0.1em;
+}
+
+.main-title .thin {
+  font-weight: 200;
+}
+
 /* CANVAS
 ================================= */
+.main {
+  grid-area: content;
+}
  canvas {
      position: absolute;
      display: block;
      align-content: center;
-     grid-area: content;
  }
- 
- 
 
+ /* Borders
+================================= */
+.container-grid {
+  padding: 0;
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  background-color: #1b1b1b; }
 
- 
+.container-grid a {
+  display: flex;
+  flex-wrap: nowrap; }
 
- 
+.container-grid img {
+  width: 120px;
+  height: 120px; }
+
+.container-grid div {
+  width: 220px;
+  padding: 0 10px 0 20px;
+  background-color: #211510; }
+
+.container-grid a:hover div {
+  background-color: #990000; }

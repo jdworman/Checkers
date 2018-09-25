@@ -9,19 +9,23 @@
   <%= javascript_include_tag 'application', 'data-turbolinks-track': 'reload' %>
    </head>
 
-  <body> 
- <%# <header>
- <h1>Checkers</h1>
+  <body>
+ <header>
+ <h1 class="main-title"><span class="thin">Chec</span>kers</h1>
  </header>
 
   <nav>
-  
-  </nav> %>
-  <%# <main> %>
+    <div class="container-grid">
+      <h2>Player 1</h2> 
+    </div>
+  </nav>
+  <main>
     <canvas></canvas>
-  <canvas></canvas>
-  <%# </main>
-  <footer></footer> %>
+    <canvas></canvas>
+ </main>
+  <footer>
+
+  </footer>
 
 
     <%= yield %>

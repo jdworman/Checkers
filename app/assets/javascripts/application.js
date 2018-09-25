@@ -148,7 +148,7 @@ function setupBoard() {
           lastPosition = moves[moves.length - 1],
           square = getSquareByXY(e.clientX, e.clientY); // find square from mousemove event object;        
         if (jumped = isValidMove(square)) {
-          //currently, you can move a piecse onto ANY empty square (!lastPosition[square].piece) or an opponent's square (lastPosition[square].piece[0] !== player)
+          //currently, move a piece onto ANY empty square (!lastPosition[square].piece) or an opponent's square (lastPosition[square].piece[0] !== player)
           // if so, highlight square
           uiCtx.lineWidth = 4;
           uiCtx.strokeStyle = uiColor;
