@@ -45,11 +45,6 @@ grid-area: header;
 
 nav {
 grid-area: nav;
-display: block;
-background-color: #e5e4d7;
-margin: 10px;
-border-radius: 5px;
-padding: 20px;
 }
 
 footer {
@@ -104,28 +99,4 @@ h1 {
      align-content: center;
  }
 
- /* Borders
-================================= */
-.container-grid {
-  padding: 0;
-  width: 100%;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  background-color: #1b1b1b; }
-
-.container-grid a {
-  display: flex;
-  flex-wrap: nowrap; }
-
-.container-grid img {
-  width: 120px;
-  height: 120px; }
-
-.container-grid div {
-  width: 220px;
-  padding: 0 10px 0 20px;
-  background-color: #211510; }
-
-.container-grid a:hover div {
-  background-color: #990000; }
+  
