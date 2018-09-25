@@ -48,10 +48,10 @@ document.addEventListener("DOMContentLoaded", init);
 }
 
 function setupPieces() {
-  pieces.b = "/images/black.png";
-	pieces.r = "/images/red.png";
-  pieces.bk = "/images/kblack.png";
-	pieces.rk = "/images/kred.png";
+  pieces.b = "/images/black.svg";
+	pieces.r = "/images/red.svg";
+  pieces.bk = "/images/black-king.svg";
+	pieces.rk = "/images/red-king.svg";
 }
 
 function setupBoard() {
@@ -124,15 +124,13 @@ function setupBoard() {
              moves[0] = JSON.parse(JSON.stringify(board)); // deep copy of board
 }
 
-
-
     /* EVENT HANDLING */
     function handleMousedown(e) {
         if (dragFrom) {
           dragging = true;
         }
       }
-  
+
       function handleMousemove(e) {
         uiCtx.clearRect(0, 0, width, height);
         if (dragging) {
@@ -141,12 +139,12 @@ function setupBoard() {
           handleHover(e);
         }
       }
-  
+
       function handleDrag(e) {
         let squareSize = boardSize / 8,
           player = whoseTurn(), // "b" or "r"
           lastPosition = moves[moves.length - 1],
-          square = getSquareByXY(e.clientX, e.clientY); // find square from mousemove event object;        
+          square = getSquareByXY(e.clientX, e.clientY); // find square from mousemove event object;
         if (jumped = isValidMove(square)) {
           //currently, move a piece onto ANY empty square (!lastPosition[square].piece) or an opponent's square (lastPosition[square].piece[0] !== player)
           // if so, highlight square
@@ -168,7 +166,7 @@ function setupBoard() {
           dragTo = null;
         }
       }
-  
+
       function handleHover(e) {
         let squareSize = boardSize / 8,
           player = whoseTurn(), // "w" or "b"
@@ -185,7 +183,7 @@ function setupBoard() {
           dragFrom = null;
         }
       }
-  
+
       function handleMouseup(e) {
         console.log(dragTo)
         if (dragging) {
@@ -204,7 +202,7 @@ function setupBoard() {
           newBoard[dragFrom].piece = null;
           newBoard[dragTo].piece = piece;
           //remove if jumped
-          if (newBoard[jumped]) 
+          if (newBoard[jumped])
             newBoard[jumped].piece = null
           //add another board to the moves array
           moves.push(newBoard);
@@ -217,7 +215,7 @@ function setupBoard() {
           dragging = false;
         }
       }
-  
+
       function isValidMove(square) { //return true or false
         let fromSq = dragFrom,
           fromFile = fromSq[0], //"a", "b", etc.
@@ -229,7 +227,7 @@ function setupBoard() {
           toRank = Number(toSq[1]), //"3", "4", etc.
           toFileNum = toFile.charCodeAt(0), //number representation of letter
           pieceOnToSq = moves[moves.length - 1][toSq].piece; //null, "b", or "r"
-  
+
         //can't move onto square with own piece already on it
         if (pieceOnToSq === movingPieceColor) return false;
         //move onto empty square must be forward and diagonal
