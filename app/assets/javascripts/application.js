@@ -24,8 +24,9 @@ const boardSize = 400,
       board = {};
 
 var boardCanvas, boardCtx, uiCanvas, uiCtx, width, height,
-dragging = false, dragFrom, dragTo; 
+dragging = false, dragFrom, dragTo;
 setupPieces();
+
 
 document.addEventListener("DOMContentLoaded", init);
 
@@ -49,21 +50,21 @@ document.addEventListener("DOMContentLoaded", init);
 }
 
 function setupPieces() {
-//   pieces.b = new Image();
-//   pieces.b.src = "../images/black.svg";
-// 	pieces.r = new Image();
-//   pieces.r.src = "../images/red.svg";
-//   pieces.bk = new Image();
-//   pieces.bk.src = "../images/black-king.svg";
-//   pieces.rk = new Image();
-// 	pieces.rk.src = "../images/red-king.svg";
+  pieces.b = new Image(50, 50);
+  pieces.b.src = "images/black.svg";
+	pieces.r = new Image(50, 50);
+  pieces.r.src = "images/red.svg";
+  pieces.bk = new Image();
+  pieces.bk.src = "images/black-king.svg";
+  pieces.rk = new Image();
+  pieces.rk.src = "images/red-king.svg";
 }
 
 function setupBoard() {
     let squareSize = boardSize/8;
     let canvasPosition = uiCanvas.getBoundingClientRect(),
-    offsetX = 0, 
-    offsetY = 0; 
+    offsetX = 0,
+    offsetY = 0;
          board.a8 = { x: squareSize * 0 + offsetX, y: squareSize * 0 + offsetY, piece: null };
          board.a7 = { x: squareSize * 0 + offsetX, y: squareSize * 1 + offsetY, piece: "r" };
          board.a6 = { x: squareSize * 0 + offsetX, y: squareSize * 2 + offsetY, piece: null };
@@ -216,10 +217,10 @@ function setupBoard() {
           newBoard[dragFrom].piece = null;
           newBoard[dragTo].piece = piece;
           //check for king
-          if(piece === "b" && dragTo[1] === "8") piece = "bk";     
-          if(piece === "r" && dragTo[1] === "1") piece = "rk";  
+          if(piece === "b" && dragTo[1] === "8") piece = "bk";
+          if(piece === "r" && dragTo[1] === "1") piece = "rk";
           //add piece to new square
-          newBoard[dragTo].piece = piece;   
+          newBoard[dragTo].piece = piece;
           //remove if jumped
           if (newBoard[jumped]) {//is there another jump with same piece
             newBoard[jumped].piece = null;
@@ -275,12 +276,12 @@ function setupBoard() {
         }
         return false;
       }
- 
+
 /* HELPERS */
 function whoseTurn(){
       // if even number of moves in moves array, it's black's turn, otherwise red's
     return moves.length % 2 === 0 ? "r" : "b";
-    
+
 }
 function getSquareByXY(x, y){
     let squareSize = boardSize/8,
@@ -307,28 +308,28 @@ function drawBoard(){
 }
 
 
-function drawPieces(){
-  let lastPosition = moves[moves.length-1]; // get last element of moves array
-boardCtx.fillStyle = "black"; // text placeholder
-  boardCtx.textBaseline="top"; // text placeholder
-boardCtx.font="30px Verdana"; // text placeholder
-for (let square in lastPosition){ // iterate through the most recent game state
-    if (lastPosition[square].piece){
-        boardCtx.fillText(lastPosition[square].piece, lastPosition[square].x, lastPosition[square].y); // text placeholder
-      
-    }
-}
-}
-
 // function drawPieces(){
-//       let lastPosition = moves[moves.length-1]; // get last element of moves array
+//   let lastPosition = moves[moves.length-1]; // get last element of moves array
+// boardCtx.fillStyle = "black"; // text placeholder
+//   boardCtx.textBaseline="top"; // text placeholder
+// boardCtx.font="30px Verdana"; // text placeholder
+// for (let square in lastPosition){ // iterate through the most recent game state
+//     if (lastPosition[square].piece){
+//         boardCtx.fillText(lastPosition[square].piece, lastPosition[square].x, lastPosition[square].y); // text placeholder
+
+//     }
+// }
+// }
+
+function drawPieces(){
+      let lastPosition = moves[moves.length-1]; // get last element of moves array
 //     // boardCtx.fillStyle = "black"; // text placeholder
 //     //   boardCtx.textBaseline="top"; // text placeholder
 //     // boardCtx.font="30px Verdana"; // text placeholder
-//     for (let square in lastPosition){ // iterate through the most recent game state
-//         if (lastPosition[square].piece){
+    for (let square in lastPosition){ // iterate through the most recent game state
+        if (lastPosition[square].piece){
 //             // boardCtx.fillText(lastPosition[square].piece, lastPosition[square].x, lastPosition[square].y); // text placeholder
-//             boardCtx.drawImage(pieces[lastPosition[square].piece], lastPosition[square].x, lastPosition[square].y);
-//         }
-//     }
-//   }
+            boardCtx.drawImage(pieces[lastPosition[square].piece], lastPosition[square].x, lastPosition[square].y);
+        }
+    }
+  }
