@@ -30,7 +30,7 @@
   text-decoration: none; }
 
  body {
-  background-color: tomato;
+  background-color: steelblue;
   display: grid;
   grid-template-rows: 150px auto 100px;
   grid-template-columns: minmax(200px, 3fr) 9fr;
@@ -90,13 +90,8 @@ h1 {
 
 /* CANVAS
 ================================= */
-.main {
-  grid-area: content;
-}
  canvas {
      position: absolute;
      display: block;
      align-content: center;
  }
-
-  

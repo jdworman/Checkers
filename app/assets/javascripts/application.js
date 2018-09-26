@@ -24,7 +24,8 @@ const boardSize = 400,
       board = {};
 
 var boardCanvas, boardCtx, uiCanvas, uiCtx, width, height,
-dragging = false, dragFrom, dragTo;
+dragging = false, dragFrom, dragTo; 
+setupPieces();
 
 document.addEventListener("DOMContentLoaded", init);
 
@@ -41,17 +42,21 @@ document.addEventListener("DOMContentLoaded", init);
      uiCanvas.addEventListener("mousemove", handleMousemove);
      uiCanvas.addEventListener("mouseup", handleMouseup);
 
- setupPieces();
+  // setupPieces();
  setupBoard();
  drawBoard();
  drawPieces();
 }
 
 function setupPieces() {
-  pieces.b = "/images/black.svg";
-	pieces.r = "/images/red.svg";
-  pieces.bk = "/images/black-king.svg";
-	pieces.rk = "/images/red-king.svg";
+//   pieces.b = new Image();
+//   pieces.b.src = "../images/black.svg";
+// 	pieces.r = new Image();
+//   pieces.r.src = "../images/red.svg";
+//   pieces.bk = new Image();
+//   pieces.bk.src = "../images/black-king.svg";
+//   pieces.rk = new Image();
+// 	pieces.rk.src = "../images/red-king.svg";
 }
 
 function setupBoard() {
@@ -144,7 +149,10 @@ function setupBoard() {
         let squareSize = boardSize / 8,
           player = whoseTurn(), // "b" or "r"
           lastPosition = moves[moves.length - 1],
-          square = getSquareByXY(e.clientX, e.clientY); // find square from mousemove event object;
+          canvasPosition = uiCanvas.getBoundingClientRect(),
+          x = canvasPosition.x - e.clientX,
+          y = canvasPosition.y - e.clientY,
+          square = getSquareByXY(x,y); // find square from mousemove event object;
         if (jumped = isValidMove(square)) {
           //currently, move a piece onto ANY empty square (!lastPosition[square].piece) or an opponent's square (lastPosition[square].piece[0] !== player)
           // if so, highlight square
@@ -198,12 +206,18 @@ function setupBoard() {
           let lastPosition = moves[moves.length - 1],
             newBoard = JSON.parse(JSON.stringify(lastPosition)),
             piece = newBoard[dragFrom].piece;
-          //move piece
+          //remove piece from old square
           newBoard[dragFrom].piece = null;
           newBoard[dragTo].piece = piece;
+          //check for king
+          if(piece === "b" && dragTo[1] === "8") piece = "bk";     
+          if(piece === "r" && dragTo[1] === "1") piece = "rk";  
+          //add piece to new square
+          newBoard[dragTo].piece = piece;   
           //remove if jumped
-          if (newBoard[jumped])
-            newBoard[jumped].piece = null
+          if (newBoard[jumped]) {//is there another jump with same piece
+            newBoard[jumped].piece = null;
+          }
           //add another board to the moves array
           moves.push(newBoard);
           //update board/pieces display
@@ -233,41 +247,34 @@ function setupBoard() {
         //move onto empty square must be forward and diagonal
         if (!pieceOnToSq) {
           //moving one rank
-          if (movingPieceColor === "b" && toRank === fromRank + 1 && Math.abs(toFileNum - fromFileNum) === 1) return true;
-          if (movingPieceColor === "r" && toRank === fromRank - 1 && Math.abs(toFileNum - fromFileNum) === 1) return true;
+          if (["b","bk", "rk"].includes(movingPieceColor) && toRank === fromRank + 1 && Math.abs(toFileNum - fromFileNum) === 1) return true;
+          if (["r","bk", "rk"].includes(movingPieceColor) && toRank === fromRank - 1 && Math.abs(toFileNum - fromFileNum) === 1) return true;
           //moving two ranks
-          if (movingPieceColor === "b" && toRank === fromRank + 2 && Math.abs(toFileNum - fromFileNum) === 2) {
+          if (["b","bk", "rk"].includes(movingPieceColor) && toRank === fromRank + 2 && Math.abs(toFileNum - fromFileNum) === 2) {
             //is there a red piece to jump over?
             let jumpedSq = String.fromCharCode(fromFileNum + (toFileNum - fromFileNum) / 2) + (toRank - 1),
               jumpedPiece = moves[moves.length - 1][jumpedSq].piece;
-            return (jumpedPiece === "r") ? jumpedSq: false;
+              if (["b", "bk"].includes(movingPieceColor) && ["r", "rk"].includes(jumpedPiece))return jumpedSq;
+              if (["r", "rk"].includes(movingPieceColor) && ["b", "bk"].includes(jumpedPiece))return jumpedSq;
+            return false;
           }
-          if (movingPieceColor === "r" && toRank === fromRank - 2 && Math.abs(toFileNum - fromFileNum) === 2) {
+          if (["r","bk", "rk"].includes(movingPieceColor) && toRank === fromRank - 2 && Math.abs(toFileNum - fromFileNum) === 2) {
             //is there a black piece to jump over?
             let jumpedSq = String.fromCharCode(fromFileNum + (toFileNum - fromFileNum) / 2) + (toRank + 1),
               jumpedPiece = moves[moves.length - 1][jumpedSq].piece;
-            return (jumpedPiece === "b") ? jumpedSq: false;
+              if (["b", "bk"].includes(movingPieceColor) && ["r", "rk"].includes(jumpedPiece))return jumpedSq;
+              if (["r", "rk"].includes(movingPieceColor) && ["b", "bk"].includes(jumpedPiece))return jumpedSq;
+            return false;
           }
         }
         return false;
       }
-
-/* KING */
-// function kingMe (x,y) { //The piece made it to the end of the other side
-//   if ("b") //"b" is at the end of the board
-//   if ("b" === 8) { //is king
-//   }
-// }
-// else{
-//   if ("r") //"r" is at the end of the board
-//   if ("r" === 1) { // is king
-//   }
-// }
-
+ 
 /* HELPERS */
 function whoseTurn(){
       // if even number of moves in moves array, it's black's turn, otherwise red's
     return moves.length % 2 === 0 ? "r" : "b";
+    
 }
 function getSquareByXY(x, y){
     let squareSize = boardSize/8,
@@ -293,14 +300,29 @@ function drawBoard(){
     }
 }
 
+
 function drawPieces(){
-      let lastPosition = moves[moves.length-1]; // get last element of moves array
-    boardCtx.fillStyle = "black"; // text placeholder
-      boardCtx.textBaseline="top"; // text placeholder
-    boardCtx.font="30px Verdana"; // text placeholder
-    for (let square in lastPosition){ // iterate through the most recent game state
-        if (lastPosition[square].piece){
-            boardCtx.fillText(lastPosition[square].piece, lastPosition[square].x, lastPosition[square].y); // text placeholder
-        }
+  let lastPosition = moves[moves.length-1]; // get last element of moves array
+boardCtx.fillStyle = "black"; // text placeholder
+  boardCtx.textBaseline="top"; // text placeholder
+boardCtx.font="30px Verdana"; // text placeholder
+for (let square in lastPosition){ // iterate through the most recent game state
+    if (lastPosition[square].piece){
+        boardCtx.fillText(lastPosition[square].piece, lastPosition[square].x, lastPosition[square].y); // text placeholder
+      
     }
-  }
+}
+}
+
+// function drawPieces(){
+//       let lastPosition = moves[moves.length-1]; // get last element of moves array
+//     // boardCtx.fillStyle = "black"; // text placeholder
+//     //   boardCtx.textBaseline="top"; // text placeholder
+//     // boardCtx.font="30px Verdana"; // text placeholder
+//     for (let square in lastPosition){ // iterate through the most recent game state
+//         if (lastPosition[square].piece){
+//             // boardCtx.fillText(lastPosition[square].piece, lastPosition[square].x, lastPosition[square].y); // text placeholder
+//             boardCtx.drawImage(pieces[lastPosition[square].piece], lastPosition[square].x, lastPosition[square].y);
+//         }
+//     }
+//   }
