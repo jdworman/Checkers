@@ -307,20 +307,6 @@ function drawBoard(){
     }
 }
 
-
-// function drawPieces(){
-//   let lastPosition = moves[moves.length-1]; // get last element of moves array
-// boardCtx.fillStyle = "black"; // text placeholder
-//   boardCtx.textBaseline="top"; // text placeholder
-// boardCtx.font="30px Verdana"; // text placeholder
-// for (let square in lastPosition){ // iterate through the most recent game state
-//     if (lastPosition[square].piece){
-//         boardCtx.fillText(lastPosition[square].piece, lastPosition[square].x, lastPosition[square].y); // text placeholder
-
-//     }
-// }
-// }
-
 function drawPieces(){
       let lastPosition = moves[moves.length-1]; // get last element of moves array
 //     // boardCtx.fillStyle = "black"; // text placeholder
