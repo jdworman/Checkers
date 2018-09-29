@@ -1,23 +1,33 @@
-App.chatChannel = App.cable.subscriptions.create { channel: "ChatChannel", room: "Lobby"},
+actioncable_methods =
+  connected: ->
+    console.log 'connected to ChatChannel'
+
+  disconnected: ->
+
   received: (data) ->
-    @appendLine(data)
-    $('#chat-feed').stop().animate{ scrollTop: $('#chat-feed')[0].scrollHeight }, 800
+    console.log "Receive message #{data} from ChatChannel"
+    App.vue.receiveMessage data
 
-  appendLine: (data) ->
-    html = @createLine(data)
-    $("[data-chatroom='Lobby']").append(html)
+  send_message: (name, message) ->
+    console.log "Send message #{message} to ChatChannel"
+    @perform 'send_message', { message: message, name: name }
 
-  createLine: (data) ->
-    """
-    <article class="chat-line">
-      <span class="speaker">#{data["username"]} :</span>
-      <span class="body">#{data["message"]}</span>
-    </article>
-    """
 
-$(document).on 'keypress', 'input.chat-input', (event) ->
-  if event.keyCode is 13
-    App.chatChannel.send
-      message: event.target.value
-      room: 'Lobby'
-    event.target.value = ''
+App.chat = App.cable.subscriptions.create { channel: "ChatChannel" }, actioncable_methods
+
+
+App.vue = new Vue(
+  el: '#chat'
+  data:
+    name: 'anonymous'
+    message: null
+    messages: []
+  methods:
+    sendMessage: ->
+      App.chat.send_message @name, @message
+      @message = null
+      return
+    receiveMessage: (data) ->
+      @messages.push {message: data.message, name: data.name}
+      return
+)
