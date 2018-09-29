@@ -18,7 +18,18 @@
 
   <nav>
 
-    </form>
+    <div class="lobby-chat">
+<div id="chat-feed" class="log" data-chatroom="lobby">
+</div>
+<div class="entry">
+<div class="type-area">
+<div class="username-input">
+<%= text_field_tag :message, nil %>
+class: "form-control chat-input", maxlength: 140 %>
+</div>
+</div>
+</div>
+</div>
   </nav>
     <main>
     <canvas></canvas>
@@ -26,6 +37,8 @@
 
     </main>
    <footer>
+
+
 <%# 
      <div id="chatbox"></div>
 
