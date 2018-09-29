@@ -16,13 +16,17 @@
 //= require turbolinks
 //= require_tree .
 
+
 const boardSize = 400,
       darkSqColor = "brown",
       lightSqColor = "beige",
       uiColor = "red",
       pieces = {},
       moves = [],
-      board = {};
+      board = {},
+      bcount = 12,
+      rcount = 12;
+
 
 var boardCanvas, boardCtx, uiCanvas, uiCtx, width, height,
 dragging = false, dragFrom, dragTo;
@@ -51,9 +55,9 @@ document.addEventListener("DOMContentLoaded", init);
 }
 
 function setupPieces() {
-  pieces.b = new Image(50, 50);
+  pieces.b = new Image();
   pieces.b.src = "images/black.svg";
-	pieces.r = new Image(50, 50);
+	pieces.r = new Image();
   pieces.r.src = "images/red.svg";
   pieces.bk = new Image();
   pieces.bk.src = "images/black-king.svg";
@@ -225,7 +229,12 @@ function setupBoard() {
           //remove if jumped
           if (newBoard[jumped]) {//is there another jump with same piece
             newBoard[jumped].piece = null;
-          }
+          //   while (anotherJump(newBoard)) {
+          //     handleJump ();
+          //
+          //   }
+           }
+
           //add another board to the moves array
           moves.push(newBoard);
           //update board/pieces display
@@ -277,6 +286,20 @@ function setupBoard() {
         }
         return false;
       }
+      // function anotherJump(newBoard) {
+      //   var movingPiece = newBoard[dragTo];
+      //   if  (["b","bk", "rk" ].includes(movingPiece) && //if there is different color piece diagonally, check to see 2:2 is empty square
+      //   if  (["r","rk", "bk" ].includes(movingPiece)
+      //   the moving piece is black and if there is a red piece on file 1 + rank 1 and there is empty space file 2 and rank 2 make jumpedPiece
+      //   if the moving is a red piecce there is a black peice file 1 + rank 1 and there is
+           //return true or false
+        // how many ranks and files for the next moves
+        // is it 1:1 or 2:2, if it is 2:2 that means its a jump
+        //if it is more than a certain amount that means it will make a jump
+        // if the piece has a 2:2 move and there is no piece on the landing square then it can return true
+        // opposing piece and landing space that is empty
+        // one direction for black piece, one direction fro red piece, and all directions for king piece
+      // }
 
 /* HELPERS */
 function whoseTurn(){
@@ -309,6 +332,7 @@ function drawBoard(){
 }
 
 function drawPieces(){
+    let squareSize = boardSize/8;
       let lastPosition = moves[moves.length-1]; // get last element of moves array
 //     // boardCtx.fillStyle = "black"; // text placeholder
 //     //   boardCtx.textBaseline="top"; // text placeholder
@@ -316,7 +340,7 @@ function drawPieces(){
     for (let square in lastPosition){ // iterate through the most recent game state
         if (lastPosition[square].piece){
 //             // boardCtx.fillText(lastPosition[square].piece, lastPosition[square].x, lastPosition[square].y); // text placeholder
-            boardCtx.drawImage(pieces[lastPosition[square].piece], lastPosition[square].x, lastPosition[square].y);
+            boardCtx.drawImage(pieces[lastPosition[square].piece], lastPosition[square].x, lastPosition[square].y, squareSize, squareSize);
         }
     }
   }
