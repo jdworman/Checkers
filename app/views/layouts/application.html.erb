@@ -2,8 +2,9 @@
 <html>
   <head>
     <title>Checkers</title>
-    <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
+  <%= csrf_meta_tags %>
+<%= action_cable_meta_tag %>
 
     <%= stylesheet_link_tag    'application', media: 'all', 'data-turbolinks-track': 'reload' %>
   <%= javascript_include_tag 'application', 'data-turbolinks-track': 'reload' %>
@@ -13,41 +14,55 @@
 
 
     <header>
- <h1 class="main-title"><span class="thin">Chec</span>kers</h1>
- </header>
+     <h1 class="main-title"><span class="thin">Chec</span>kers</h1>
+     </header>
 
-  <nav>
+      <nav>
 
-    <div class="lobby-chat">
-<div id="chat-feed" class="log" data-chatroom="lobby">
-</div>
-<div class="entry">
-<div class="type-area">
-<div class="username-input">
-<%= text_field_tag :message, nil %>
-class: "form-control chat-input", maxlength: 140 %>
-</div>
-</div>
-</div>
-</div>
-  </nav>
-    <main>
-    <canvas></canvas>
-    <canvas></canvas>
+      </nav>
+        <main>
+        <canvas></canvas>
+        <canvas></canvas>
 
-    </main>
-   <footer>
+        </main>
+       <footer>
+         <div class="container">
+           <h1 class="demo-section-title">Checkers Chat</h1>
+           <div id="chat">
+             <div class="row">
+               <div class="col-xs-6 ">
+                 <div class="form-group">
+                   <label class="col-sm-2 control-label" for="formGroupInputDefault">Name</label>
+                   <div class="col-sm-8">
+                     <input class="form-control"   v-model="name" type="text" id="formGroupInputDefault" >
+                   </div>
+                 </div>
+               </div>
+             </div>
+             <div class="row">
+               <div class="col-xs-6">
+                 <div class="form-group">
+                   <label class="col-sm-2 control-label" for="formGroupInputDefault">Message</label>
+                   <div class="col-sm-10">
+                     <input v-model="message" placeholder="Enter your message" class="form-control" @keyup.enter="sendMessage" id="formGroupInputDefault" >
+                   </div>
+                 </div>
+               </div>
+             </div>
+             <h2 class="demo-section-title">Messages</h2>
+             <div class="row" v-for="gossip in messages">
+               <div class="col-xs-2">
+                 <span class="fui-user"></span> {{ gossip.name }}
+               </div>
+               <div class="col-xs-8">
+                 <span class="fui-chat"></span> {{ gossip.message }}
+               </div>
+             </div>
+           </div>
+         </div>
+      </footer>
 
 
-<%# 
-     <div id="chatbox"></div>
-
-      <form name="message" action="">
-          <input name="usermsg" type="text" id="usermsg" size="63" />
-          <input name="submitmsg" type="submit"  id="submitmsg" value="Send" /> %>
-  </footer>
-
-
-    <%= yield %>
-  </body>
-</html>
+        <%= yield %>
+      </body>
+    </html>
