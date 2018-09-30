@@ -6,7 +6,10 @@ actioncable_methods =
 
   received: (data) ->
     console.log "Receive message #{data} from ChatChannel"
-    App.vue.receiveMessage data
+    messageEl = document.createElement("div")
+    messageEl.innerHTML = data["message"]
+    chatEl = document.getElementById("chat")
+    chatEl.appendChild(messageEl)
 
   send_message: (name, message) ->
     console.log "Send message #{message} to ChatChannel"
@@ -14,20 +17,8 @@ actioncable_methods =
 
 
 App.chat = App.cable.subscriptions.create { channel: "ChatChannel" }, actioncable_methods
+App.onPressSend = (event) ->
+  currentMessageEl = document.getElementById("current-message")
+  App.chat.send({message: currentMessageEl.value})
+  currentMessageEl.value = ''
 
-
-App.vue = new Vue(
-  el: '#chat'
-  data:
-    name: 'anonymous'
-    message: null
-    messages: []
-  methods:
-    sendMessage: ->
-      App.chat.send_message @name, @message
-      @message = null
-      return
-    receiveMessage: (data) ->
-      @messages.push {message: data.message, name: data.name}
-      return
-)

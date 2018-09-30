@@ -3,12 +3,12 @@ class ChatChannel < ApplicationCable::Channel
       stream_from 'chat'
     end
 
-      def subscribed
-        stream_from CHANNEL_NAME
-      end
+    def receive(data)
+      p data
+      ActionCable.server.broadcast("chat", data)
+    end
 
-      # a simple echo implementation
       def send_message(data)
-        ActionCable.server.broadcast CHANNEL_NAME, { message: data['message'], name: data['name']}
+        ActionCable.server.broadcast 'chat', { message: data['message'], name: data['name']}
       end
     end

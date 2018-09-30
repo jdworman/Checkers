@@ -18,6 +18,8 @@
 //= require_tree .
 
 
+
+
 const boardSize = 400,
       darkSqColor = "brown",
       lightSqColor = "beige",
