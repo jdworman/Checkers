@@ -334,12 +334,12 @@ function drawBoard(){
 function drawPieces(){
     let squareSize = boardSize/8;
       let lastPosition = moves[moves.length-1]; // get last element of moves array
-//     // boardCtx.fillStyle = "black"; // text placeholder
-//     //   boardCtx.textBaseline="top"; // text placeholder
-//     // boardCtx.font="30px Verdana"; // text placeholder
+    // boardCtx.fillStyle = "black"; // text placeholder
+    //   boardCtx.textBaseline="top"; // text placeholder
+    // boardCtx.font="30px Verdana"; // text placeholder
     for (let square in lastPosition){ // iterate through the most recent game state
         if (lastPosition[square].piece){
-//             // boardCtx.fillText(lastPosition[square].piece, lastPosition[square].x, lastPosition[square].y); // text placeholder
+            // boardCtx.fillText(lastPosition[square].piece, lastPosition[square].x, lastPosition[square].y); // text placeholder
             boardCtx.drawImage(pieces[lastPosition[square].piece], lastPosition[square].x, lastPosition[square].y, squareSize, squareSize);
         }
     }
