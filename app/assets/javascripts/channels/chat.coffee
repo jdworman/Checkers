@@ -5,11 +5,11 @@ actioncable_methods =
   disconnected: ->
 
   received: (data) ->
-    console.log "Receive message #{data} from ChatChannel"
-    messageEl = document.createElement("div")
-    messageEl.innerHTML = data["message"]
+    console.log data
+    messageEl = document.createElement("div") 
+    messageEl.innerHTML = data['html']
     chatEl = document.getElementById("chat")
-    chatEl.appendChild(messageEl)
+    chatEl.prepend(messageEl)
 
   send_message: (name, message) ->
     console.log "Send message #{message} to ChatChannel"
@@ -18,7 +18,8 @@ actioncable_methods =
 
 App.chat = App.cable.subscriptions.create { channel: "ChatChannel" }, actioncable_methods
 App.onPressSend = (event) ->
+  userName = document.getElementById("user-name").dataset.name
   currentMessageEl = document.getElementById("current-message")
-  App.chat.send({message: currentMessageEl.value})
+  App.chat.send({name: userName, message: currentMessageEl.value})
   currentMessageEl.value = ''
 

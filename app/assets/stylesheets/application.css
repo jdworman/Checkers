@@ -97,19 +97,59 @@ h1 {
  }
 
 
-#chatbox {
-  text-align:left;
-  margin:0 auto;
-  margin-bottom:25px;
-  padding:10px;
-  background:#fff;
-  height:270px;
-  width:200px;
-  border:1px solid #ACD8F0;
-  overflow:auto; }
+ main {
+  display: flex;
+  flex-direction: row;
+}
 
-#usermsg {
-  width:250px;
-  border:1px solid #ACD8F0; }
+#user-info {
+  flex: 1;
+}
 
-#submit { width: 60px; }
+#game {
+  flex: 9;
+}
+
+#chat {
+  overflow: scroll;
+  height: 60px;
+}
+
+.message {
+  background-color: white;
+  border-radius: 25px;
+  color: black;
+  display: inline-flex;
+  flex-direction: row;
+  margin-top: 5px;
+  margin-bottom: 5px;
+  width: auto; 
+}
+
+.message .name {
+  margin: 10px;
+}
+
+.message .message-text {
+  margin: 10px;
+}
+
+
+
+
+[data-id="user-card"] {
+}
+[data-id="user-card"] [data-id="picture"] {
+}
+[data-id="user-card"] [data-id="info"] {
+}
+[data-id="user-card"] [data-id="info"] [data-id="name"] {
+}
+[data-id="user-card"] [data-id="info"] [data-id="record"] {
+}
+[data-id="user-card"] [data-id="info"] [data-id="record"] [data-id="win"] {
+}
+[data-id="user-card"] [data-id="info"] [data-id="record"] [data-id="loss"] {
+}
+[data-id="user-card"] [data-id="info"] [data-id="record"] [data-id="draw"] {
+}

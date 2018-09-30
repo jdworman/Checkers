@@ -1,1 +1,23 @@
- 
+  <header>
+     <h1 class="main-title"><span class="thin">Chec</span>kers</h1>
+     </header>
+
+      <nav>
+    <section id="user-info">
+    <%= render "users/card", locals: {user: @user}  %>
+  </section>
+      </nav>
+        <main>
+        <div id="user-name" data-name="<%= @user.name %>"></div>
+   
+    <canvas></canvas>
+    <canvas></canvas>
+  
+        </main>
+       <footer>
+       <div id="chat"></div>
+   <div>
+  <textarea id="current-message"></textarea>
+  <button onclick="App.onPressSend(event)">Send</button>
+</div>
+      </footer>

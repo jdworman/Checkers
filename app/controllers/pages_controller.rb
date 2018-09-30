@@ -1,6 +1,8 @@
 class PagesController < ApplicationController
   def index
-  end
+    @user = self.current_user()
+    p @user
+  end  
 
   def chat
     message = params[:message]
