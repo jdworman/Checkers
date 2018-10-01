@@ -24,7 +24,8 @@ const boardSize = 400,
       pieces = {},
       moves = [],
       board = {},
-  
+      bcount = 12,
+      rcount = 12;
 
 
 var boardCanvas, boardCtx, uiCanvas, uiCtx, width, height,
