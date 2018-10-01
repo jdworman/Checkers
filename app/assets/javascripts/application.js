@@ -64,8 +64,8 @@ function setupPieces() {
 }
 
 function setupBoard() {
-    let squareSize = boardSize/8;
-    let canvasPosition = uiCanvas.getBoundingClientRect(),
+    var squareSize = boardSize/8;
+    var canvasPosition = uiCanvas.getBoundingClientRect(),
     offsetX = 0,
     offsetY = 0;
          board.a8 = { x: squareSize * 0 + offsetX, y: squareSize * 0 + offsetY, piece: null };
@@ -153,7 +153,7 @@ function setupBoard() {
       }
 
       function handleDrag(e) {
-        let squareSize = boardSize / 8,
+        var squareSize = boardSize / 8,
           player = whoseTurn(), // "b" or "r"
           lastPosition = moves[moves.length - 1],
           canvasPosition = uiCanvas.getBoundingClientRect(),
@@ -169,7 +169,7 @@ function setupBoard() {
           // draw line from original square
           uiCtx.lineWidth = 2;
           uiCtx.beginPath();
-          let x1 = lastPosition[dragFrom].x + squareSize / 2,
+          var x1 = lastPosition[dragFrom].x + squareSize / 2,
             y1 = lastPosition[dragFrom].y + squareSize / 2,
             x2 = lastPosition[square].x + squareSize / 2,
             y2 = lastPosition[square].y + squareSize / 2;
@@ -183,7 +183,7 @@ function setupBoard() {
       }
 
       function handleHover(e) {
-        let squareSize = boardSize / 8,
+        var squareSize = boardSize / 8,
           player = whoseTurn(), // "w" or "b"
           lastPosition = moves[moves.length - 1],
           canvasPosition = uiCanvas.getBoundingClientRect(),
@@ -246,7 +246,7 @@ function setupBoard() {
       }
 
       function isValidMove(square) { //return true or false
-        let fromSq = dragFrom,
+        var fromSq = dragFrom,
           fromFile = fromSq[0], //"a", "b", etc.
           fromRank = Number(fromSq[1]), //"3", "4", etc.
           fromFileNum = fromFile.charCodeAt(0), //number representation of letter
@@ -306,7 +306,7 @@ function whoseTurn(){
 
 }
 function getSquareByXY(x, y){
-    let squareSize = boardSize/8,
+    var squareSize = boardSize/8,
           lastPosition = moves[moves.length-1];
       for (let square in lastPosition){
         if (lastPosition[square].x <= x && lastPosition[square].x + squareSize >= x &&
@@ -316,7 +316,7 @@ function getSquareByXY(x, y){
 
 /* DRAWING */
 function drawBoard(){
-    let squareSize = boardSize/8,
+    var squareSize = boardSize/8,
         isLightSq = true;
     for (let x=0; x<width; x+=squareSize){
         for (let y=0; y<height; y+=squareSize){
@@ -330,12 +330,12 @@ function drawBoard(){
 }
 
 function drawPieces(){
-    let squareSize = boardSize/8;
-      let lastPosition = moves[moves.length-1]; // get last element of moves array
+    var squareSize = boardSize/8;
+      var lastPosition = moves[moves.length-1]; // get last element of moves array
     // boardCtx.fillStyle = "black"; // text placeholder
     //   boardCtx.textBaseline="top"; // text placeholder
     // boardCtx.font="30px Verdana"; // text placeholder
-    for (let square in lastPosition){ // iterate through the most recent game state
+    for (var square in lastPosition){ // iterate through the most recent game state
         if (lastPosition[square].piece){
             // boardCtx.fillText(lastPosition[square].piece, lastPosition[square].x, lastPosition[square].y); // text placeholder
             boardCtx.drawImage(pieces[lastPosition[square].piece], lastPosition[square].x, lastPosition[square].y, squareSize, squareSize);
