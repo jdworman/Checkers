@@ -1,6 +1,9 @@
-# App.game = App.cable.subscriptions.create "GameChannel",
-# connected: ->
-#     @printMessage("Waiting for opponent...")
+App.game = App.cable.subscriptions.create "GameChannel",
+connected: ->
+    @printMessage("Waiting for opponent...")
+    
+      printMessage: (message) ->
+        $("#messages").append("<p>#{message}</p>")
 #
 #   printMessage: (message) ->
 #     $("#messages").append("<p>#{message}</p>")
