@@ -17,13 +17,14 @@
 //= require turbolinks
 //= require_tree .
 
-var   boardSize = 400,
+const boardSize = 400,
       darkSqColor = "brown",
       lightSqColor = "beige",
       uiColor = "red",
       pieces = {},
       moves = [],
-      board = {};
+      board = {},
+  
 
 
 var boardCanvas, boardCtx, uiCanvas, uiCtx, width, height,
@@ -64,8 +65,8 @@ function setupPieces() {
 }
 
 function setupBoard() {
-    var squareSize = boardSize/8;
-    var canvasPosition = uiCanvas.getBoundingClientRect(),
+    let squareSize = boardSize/8;
+    let canvasPosition = uiCanvas.getBoundingClientRect(),
     offsetX = 0,
     offsetY = 0;
          board.a8 = { x: squareSize * 0 + offsetX, y: squareSize * 0 + offsetY, piece: null };
@@ -153,7 +154,7 @@ function setupBoard() {
       }
 
       function handleDrag(e) {
-        var squareSize = boardSize / 8,
+        let squareSize = boardSize / 8,
           player = whoseTurn(), // "b" or "r"
           lastPosition = moves[moves.length - 1],
           canvasPosition = uiCanvas.getBoundingClientRect(),
@@ -169,7 +170,7 @@ function setupBoard() {
           // draw line from original square
           uiCtx.lineWidth = 2;
           uiCtx.beginPath();
-          var x1 = lastPosition[dragFrom].x + squareSize / 2,
+          let x1 = lastPosition[dragFrom].x + squareSize / 2,
             y1 = lastPosition[dragFrom].y + squareSize / 2,
             x2 = lastPosition[square].x + squareSize / 2,
             y2 = lastPosition[square].y + squareSize / 2;
@@ -183,7 +184,7 @@ function setupBoard() {
       }
 
       function handleHover(e) {
-        var squareSize = boardSize / 8,
+        let squareSize = boardSize / 8,
           player = whoseTurn(), // "w" or "b"
           lastPosition = moves[moves.length - 1],
           canvasPosition = uiCanvas.getBoundingClientRect(),
@@ -246,7 +247,7 @@ function setupBoard() {
       }
 
       function isValidMove(square) { //return true or false
-        var fromSq = dragFrom,
+        let fromSq = dragFrom,
           fromFile = fromSq[0], //"a", "b", etc.
           fromRank = Number(fromSq[1]), //"3", "4", etc.
           fromFileNum = fromFile.charCodeAt(0), //number representation of letter
@@ -306,7 +307,7 @@ function whoseTurn(){
 
 }
 function getSquareByXY(x, y){
-    var squareSize = boardSize/8,
+    let squareSize = boardSize/8,
           lastPosition = moves[moves.length-1];
       for (let square in lastPosition){
         if (lastPosition[square].x <= x && lastPosition[square].x + squareSize >= x &&
@@ -316,7 +317,7 @@ function getSquareByXY(x, y){
 
 /* DRAWING */
 function drawBoard(){
-    var squareSize = boardSize/8,
+    let squareSize = boardSize/8,
         isLightSq = true;
     for (let x=0; x<width; x+=squareSize){
         for (let y=0; y<height; y+=squareSize){
@@ -330,12 +331,12 @@ function drawBoard(){
 }
 
 function drawPieces(){
-    var squareSize = boardSize/8;
-      var lastPosition = moves[moves.length-1]; // get last element of moves array
+    let squareSize = boardSize/8;
+      let lastPosition = moves[moves.length-1]; // get last element of moves array
     // boardCtx.fillStyle = "black"; // text placeholder
     //   boardCtx.textBaseline="top"; // text placeholder
     // boardCtx.font="30px Verdana"; // text placeholder
-    for (var square in lastPosition){ // iterate through the most recent game state
+    for (let square in lastPosition){ // iterate through the most recent game state
         if (lastPosition[square].piece){
             // boardCtx.fillText(lastPosition[square].piece, lastPosition[square].x, lastPosition[square].y); // text placeholder
             boardCtx.drawImage(pieces[lastPosition[square].piece], lastPosition[square].x, lastPosition[square].y, squareSize, squareSize);
