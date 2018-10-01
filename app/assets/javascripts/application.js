@@ -23,9 +23,7 @@ const boardSize = 400,
       uiColor = "red",
       pieces = {},
       moves = [],
-      board = {},
-      bcount = 12,
-      rcount = 12;
+      board = {};
 
 
 var boardCanvas, boardCtx, uiCanvas, uiCtx, width, height,
