@@ -23,7 +23,13 @@
      margin: 0;
      padding: 0;
      position: fixed;
+     /* background: radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%); */
+     overflow: hidden;
  }
+
+
+ 
+
 
  * {
   margin: 0px;
@@ -133,24 +139,4 @@ h1 {
 
 .message .message-text {
   margin: 10px;
-}
-
-
-
-
-[data-id="user-card"] {
-}
-[data-id="user-card"] [data-id="picture"] {
-}
-[data-id="user-card"] [data-id="info"] {
-}
-[data-id="user-card"] [data-id="info"] [data-id="name"] {
-}
-[data-id="user-card"] [data-id="info"] [data-id="record"] {
-}
-[data-id="user-card"] [data-id="info"] [data-id="record"] [data-id="win"] {
-}
-[data-id="user-card"] [data-id="info"] [data-id="record"] [data-id="loss"] {
-}
-[data-id="user-card"] [data-id="info"] [data-id="record"] [data-id="draw"] {
 }
