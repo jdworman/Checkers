@@ -17,7 +17,7 @@
 //= require turbolinks
 //= require_tree .
 
-var boardSize = 400,
+var   boardSize = 400,
       darkSqColor = "brown",
       lightSqColor = "beige",
       uiColor = "red",
