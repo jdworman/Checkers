@@ -1,10 +1,4 @@
 module ApplicationCable
-  class Connection < ActionCable::Connection::Base
-    identified_by :uuid
-
-    def connect
-      self.uuid = SecureRandom.uuid
+    class Connection < ActionCable::Connection::Base
     end
   end
-end
-  
