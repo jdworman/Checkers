@@ -31,114 +31,267 @@ const boardSize = 400,
 
 
 var boardCanvas, boardCtx, uiCanvas, uiCtx, width, height,
-dragging = false, dragFrom, dragTo;
+	dragging = false, dragFrom, dragTo,
+   	preloadedImages = 0;
 setupPieces();
 
 
 document.addEventListener("DOMContentLoaded", init);
 
 /* SETUP */
- function init () {
-     boardCanvas = document.querySelector("canvas");
-     uiCanvas = boardCanvas.nextElementSibling;
-     boardCtx = boardCanvas.getContext("2d");
-     uiCtx = uiCanvas.getContext("2d");
-     width = boardCanvas.width = uiCanvas.width = boardSize;
-     height = boardCanvas.height = uiCanvas.height = boardSize;
+function init () {
+    boardCanvas = document.querySelector("canvas");
+    uiCanvas = boardCanvas.nextElementSibling;
+    boardCtx = boardCanvas.getContext("2d");
+    uiCtx = uiCanvas.getContext("2d");
+    width = boardCanvas.width = uiCanvas.width = boardSize;
+    height = boardCanvas.height = uiCanvas.height = boardSize;
 
-     uiCanvas.addEventListener("mousedown", handleMousedown);
-     uiCanvas.addEventListener("mousemove", handleMousemove);
-     uiCanvas.addEventListener("mouseup", handleMouseup);
+    uiCanvas.addEventListener("mousedown", handleMousedown);
+    uiCanvas.addEventListener("mousemove", handleMousemove);
+    uiCanvas.addEventListener("mouseup", handleMouseup);
 
-  // setupPieces();
- setupBoard();
- drawBoard();
- drawPieces();
+    // setupPieces();
+    setupBoard();
+    drawBoard();
 }
 
 function setupPieces() {
-  pieces.b = new Image();
-  pieces.b.src = "images/black.svg";
-	pieces.r = new Image();
-  pieces.r.src = "images/red.svg";
-  pieces.bk = new Image();
-  pieces.bk.src = "images/black-king.svg";
-  pieces.rk = new Image();
-  pieces.rk.src = "images/red-king.svg";
+    pieces.b = new Image();
+  	pieces.b.onload = imagesLoaded;
+    pieces.b.src = "images/black.svg";
+    pieces.r = new Image();
+  	pieces.r.onload = imagesLoaded;
+    pieces.r.src = "images/red.svg";
+    pieces.bk = new Image();
+  	pieces.bk.onload = imagesLoaded;
+    pieces.bk.src = "images/black-king.svg";
+    pieces.rk = new Image();
+  	pieces.rk.onload = imagesLoaded;
+    pieces.rk.src = "images/red-king.svg";
 }
 
-function setupBoard() {
+function imagesLoaded(){
+  	preloadedImages++;
+	if (preloadedImages === 4){
+    	drawPieces();
+    }
+}
+
+function setupBoard() { //starts or restarts the game from the begining position
     let squareSize = boardSize/8;
     let canvasPosition = uiCanvas.getBoundingClientRect(),
-    offsetX = 0,
-    offsetY = 0;
-         board.a8 = { x: squareSize * 0 + offsetX, y: squareSize * 0 + offsetY, piece: null };
-         board.a7 = { x: squareSize * 0 + offsetX, y: squareSize * 1 + offsetY, piece: "r" };
-         board.a6 = { x: squareSize * 0 + offsetX, y: squareSize * 2 + offsetY, piece: null };
-         board.a5 = { x: squareSize * 0 + offsetX, y: squareSize * 3 + offsetY, piece: null };
-         board.a4 = { x: squareSize * 0 + offsetX, y: squareSize * 4 + offsetY, piece: null };
-         board.a3 = { x: squareSize * 0 + offsetX, y: squareSize * 5 + offsetY, piece: "b" };
-         board.a2 = { x: squareSize * 0 + offsetX, y: squareSize * 6 + offsetY, piece: null };
-         board.a1 = { x: squareSize * 0 + offsetX, y: squareSize * 7 + offsetY, piece: "b" };
-         board.b8 = { x: squareSize * 1 + offsetX, y: squareSize * 0 + offsetY, piece: "r" };
-         board.b7 = { x: squareSize * 1 + offsetX, y: squareSize * 1 + offsetY, piece: null };
-         board.b6 = { x: squareSize * 1 + offsetX, y: squareSize * 2 + offsetY, piece: "r" };
-         board.b5 = { x: squareSize * 1 + offsetX, y: squareSize * 3 + offsetY, piece: null };
-         board.b4 = { x: squareSize * 1 + offsetX, y: squareSize * 4 + offsetY, piece: null };
-         board.b3 = { x: squareSize * 1 + offsetX, y: squareSize * 5 + offsetY, piece: null };
-         board.b2 = { x: squareSize * 1 + offsetX, y: squareSize * 6 + offsetY, piece: "b" };
-         board.b1 = { x: squareSize * 1 + offsetX, y: squareSize * 7 + offsetY, piece: null };
-         board.c8 = { x: squareSize * 2 + offsetX, y: squareSize * 0 + offsetY, piece: null };
-         board.c7 = { x: squareSize * 2 + offsetX, y: squareSize * 1 + offsetY, piece: "r" };
-         board.c6 = { x: squareSize * 2 + offsetX, y: squareSize * 2 + offsetY, piece: null };
-         board.c5 = { x: squareSize * 2 + offsetX, y: squareSize * 3 + offsetY, piece: null };
-         board.c4 = { x: squareSize * 2 + offsetX, y: squareSize * 4 + offsetY, piece: null };
-         board.c3 = { x: squareSize * 2 + offsetX, y: squareSize * 5 + offsetY, piece: "b" };
-         board.c2 = { x: squareSize * 2 + offsetX, y: squareSize * 6 + offsetY, piece: null };
-         board.c1 = { x: squareSize * 2 + offsetX, y: squareSize * 7 + offsetY, piece: "b" };
-         board.d8 = { x: squareSize * 3 + offsetX, y: squareSize * 0 + offsetY, piece: "r" };
-         board.d7 = { x: squareSize * 3 + offsetX, y: squareSize * 1 + offsetY, piece: null };
-         board.d6 = { x: squareSize * 3 + offsetX, y: squareSize * 2 + offsetY, piece: "r" };
-         board.d5 = { x: squareSize * 3 + offsetX, y: squareSize * 3 + offsetY, piece: null };
-         board.d4 = { x: squareSize * 3 + offsetX, y: squareSize * 4 + offsetY, piece: null };
-         board.d3 = { x: squareSize * 3 + offsetX, y: squareSize * 5 + offsetY, piece: null };
-         board.d2 = { x: squareSize * 3 + offsetX, y: squareSize * 6 + offsetY, piece: "b" };
-         board.d1 = { x: squareSize * 3 + offsetX, y: squareSize * 7 + offsetY, piece: null };
-         board.e8 = { x: squareSize * 4 + offsetX, y: squareSize * 0 + offsetY, piece: null };
-         board.e7 = { x: squareSize * 4 + offsetX, y: squareSize * 1 + offsetY, piece: "r" };
-         board.e6 = { x: squareSize * 4 + offsetX, y: squareSize * 2 + offsetY, piece:  null };
-         board.e5 = { x: squareSize * 4 + offsetX, y: squareSize * 3 + offsetY, piece: null };
-         board.e4 = { x: squareSize * 4 + offsetX, y: squareSize * 4 + offsetY, piece: null };
-         board.e3 = { x: squareSize * 4 + offsetX, y: squareSize * 5 + offsetY, piece: "b" };
-         board.e2 = { x: squareSize * 4 + offsetX, y: squareSize * 6 + offsetY, piece: null };
-         board.e1 = { x: squareSize * 4 + offsetX, y: squareSize * 7 + offsetY, piece: "b" };
-         board.f8 = { x: squareSize * 5 + offsetX, y: squareSize * 0 + offsetY, piece: "r" };
-         board.f7 = { x: squareSize * 5 + offsetX, y: squareSize * 1 + offsetY, piece: null };
-         board.f6 = { x: squareSize * 5 + offsetX, y: squareSize * 2 + offsetY, piece: "r" };
-         board.f5 = { x: squareSize * 5 + offsetX, y: squareSize * 3 + offsetY, piece: null };
-         board.f4 = { x: squareSize * 5 + offsetX, y: squareSize * 4 + offsetY, piece: null };
-         board.f3 = { x: squareSize * 5 + offsetX, y: squareSize * 5 + offsetY, piece: null };
-         board.f2 = { x: squareSize * 5 + offsetX, y: squareSize * 6 + offsetY, piece: "b" };
-         board.f1 = { x: squareSize * 5 + offsetX, y: squareSize * 7 + offsetY, piece: null };
-         board.g8 = { x: squareSize * 6 + offsetX, y: squareSize * 0 + offsetY, piece: null };
-         board.g7 = { x: squareSize * 6 + offsetX, y: squareSize * 1 + offsetY, piece: "r" };
-         board.g6 = { x: squareSize * 6 + offsetX, y: squareSize * 2 + offsetY, piece: null };
-         board.g5 = { x: squareSize * 6 + offsetX, y: squareSize * 3 + offsetY, piece: null };
-         board.g4 = { x: squareSize * 6 + offsetX, y: squareSize * 4 + offsetY, piece: null };
-         board.g3 = { x: squareSize * 6 + offsetX, y: squareSize * 5 + offsetY, piece: "b" };
-         board.g2 = { x: squareSize * 6 + offsetX, y: squareSize * 6 + offsetY, piece: null };
-         board.g1 = { x: squareSize * 6 + offsetX, y: squareSize * 7 + offsetY, piece: "b" };
-         board.h8 = { x: squareSize * 7 + offsetX, y: squareSize * 0 + offsetY, piece: "r" };
-         board.h7 = { x: squareSize * 7 + offsetX, y: squareSize * 1 + offsetY, piece: null };
-         board.h6 = { x: squareSize * 7 + offsetX, y: squareSize * 2 + offsetY, piece: "r" };
-         board.h5 = { x: squareSize * 7 + offsetX, y: squareSize * 3 + offsetY, piece: null };
-         board.h4 = { x: squareSize * 7 + offsetX, y: squareSize * 4 + offsetY, piece: null };
-         board.h3 = { x: squareSize * 7 + offsetX, y: squareSize * 5 + offsetY, piece: null };
-         board.h2 = { x: squareSize * 7 + offsetX, y: squareSize * 6 + offsetY, piece: "b" };
-         board.h1 = { x: squareSize * 7 + offsetX, y: squareSize * 7 + offsetY, piece: null };
-             moves.length = 1; // empty out moves array
-             moves[0] = JSON.parse(JSON.stringify(board)); // deep copy of board
+        offsetX = 0,
+        offsetY = 0;
+    board.a8 = { x: squareSize * 0 + offsetX, y: squareSize * 0 + offsetY, piece: null };
+    board.a7 = { x: squareSize * 0 + offsetX, y: squareSize * 1 + offsetY, piece: "r" };
+    board.a6 = { x: squareSize * 0 + offsetX, y: squareSize * 2 + offsetY, piece: null };
+    board.a5 = { x: squareSize * 0 + offsetX, y: squareSize * 3 + offsetY, piece: null };
+    board.a4 = { x: squareSize * 0 + offsetX, y: squareSize * 4 + offsetY, piece: null };
+    board.a3 = { x: squareSize * 0 + offsetX, y: squareSize * 5 + offsetY, piece: "b" };
+    board.a2 = { x: squareSize * 0 + offsetX, y: squareSize * 6 + offsetY, piece: null };
+    board.a1 = { x: squareSize * 0 + offsetX, y: squareSize * 7 + offsetY, piece: "b" };
+    board.b8 = { x: squareSize * 1 + offsetX, y: squareSize * 0 + offsetY, piece: "r" };
+    board.b7 = { x: squareSize * 1 + offsetX, y: squareSize * 1 + offsetY, piece: null };
+    board.b6 = { x: squareSize * 1 + offsetX, y: squareSize * 2 + offsetY, piece: "r" };
+    board.b5 = { x: squareSize * 1 + offsetX, y: squareSize * 3 + offsetY, piece: null };
+    board.b4 = { x: squareSize * 1 + offsetX, y: squareSize * 4 + offsetY, piece: null };
+    board.b3 = { x: squareSize * 1 + offsetX, y: squareSize * 5 + offsetY, piece: null };
+    board.b2 = { x: squareSize * 1 + offsetX, y: squareSize * 6 + offsetY, piece: "b" };
+    board.b1 = { x: squareSize * 1 + offsetX, y: squareSize * 7 + offsetY, piece: null };
+    board.c8 = { x: squareSize * 2 + offsetX, y: squareSize * 0 + offsetY, piece: null };
+    board.c7 = { x: squareSize * 2 + offsetX, y: squareSize * 1 + offsetY, piece: "r" };
+    board.c6 = { x: squareSize * 2 + offsetX, y: squareSize * 2 + offsetY, piece: null };
+    board.c5 = { x: squareSize * 2 + offsetX, y: squareSize * 3 + offsetY, piece: null };
+    board.c4 = { x: squareSize * 2 + offsetX, y: squareSize * 4 + offsetY, piece: null };
+    board.c3 = { x: squareSize * 2 + offsetX, y: squareSize * 5 + offsetY, piece: "b" };
+    board.c2 = { x: squareSize * 2 + offsetX, y: squareSize * 6 + offsetY, piece: null };
+    board.c1 = { x: squareSize * 2 + offsetX, y: squareSize * 7 + offsetY, piece: "b" };
+    board.d8 = { x: squareSize * 3 + offsetX, y: squareSize * 0 + offsetY, piece: "r" };
+    board.d7 = { x: squareSize * 3 + offsetX, y: squareSize * 1 + offsetY, piece: null };
+    board.d6 = { x: squareSize * 3 + offsetX, y: squareSize * 2 + offsetY, piece: "r" };
+    board.d5 = { x: squareSize * 3 + offsetX, y: squareSize * 3 + offsetY, piece: null };
+    board.d4 = { x: squareSize * 3 + offsetX, y: squareSize * 4 + offsetY, piece: null };
+    board.d3 = { x: squareSize * 3 + offsetX, y: squareSize * 5 + offsetY, piece: null };
+    board.d2 = { x: squareSize * 3 + offsetX, y: squareSize * 6 + offsetY, piece: "b" };
+    board.d1 = { x: squareSize * 3 + offsetX, y: squareSize * 7 + offsetY, piece: null };
+    board.e8 = { x: squareSize * 4 + offsetX, y: squareSize * 0 + offsetY, piece: null };
+    board.e7 = { x: squareSize * 4 + offsetX, y: squareSize * 1 + offsetY, piece: "r" };
+    board.e6 = { x: squareSize * 4 + offsetX, y: squareSize * 2 + offsetY, piece:  null };
+    board.e5 = { x: squareSize * 4 + offsetX, y: squareSize * 3 + offsetY, piece: null };
+    board.e4 = { x: squareSize * 4 + offsetX, y: squareSize * 4 + offsetY, piece: null };
+    board.e3 = { x: squareSize * 4 + offsetX, y: squareSize * 5 + offsetY, piece: "b" };
+    board.e2 = { x: squareSize * 4 + offsetX, y: squareSize * 6 + offsetY, piece: null };
+    board.e1 = { x: squareSize * 4 + offsetX, y: squareSize * 7 + offsetY, piece: "b" };
+    board.f8 = { x: squareSize * 5 + offsetX, y: squareSize * 0 + offsetY, piece: "r" };
+    board.f7 = { x: squareSize * 5 + offsetX, y: squareSize * 1 + offsetY, piece: null };
+    board.f6 = { x: squareSize * 5 + offsetX, y: squareSize * 2 + offsetY, piece: "r" };
+    board.f5 = { x: squareSize * 5 + offsetX, y: squareSize * 3 + offsetY, piece: null };
+    board.f4 = { x: squareSize * 5 + offsetX, y: squareSize * 4 + offsetY, piece: null };
+    board.f3 = { x: squareSize * 5 + offsetX, y: squareSize * 5 + offsetY, piece: null };
+    board.f2 = { x: squareSize * 5 + offsetX, y: squareSize * 6 + offsetY, piece: "b" };
+    board.f1 = { x: squareSize * 5 + offsetX, y: squareSize * 7 + offsetY, piece: null };
+    board.g8 = { x: squareSize * 6 + offsetX, y: squareSize * 0 + offsetY, piece: null };
+    board.g7 = { x: squareSize * 6 + offsetX, y: squareSize * 1 + offsetY, piece: "r" };
+    board.g6 = { x: squareSize * 6 + offsetX, y: squareSize * 2 + offsetY, piece: null };
+    board.g5 = { x: squareSize * 6 + offsetX, y: squareSize * 3 + offsetY, piece: null };
+    board.g4 = { x: squareSize * 6 + offsetX, y: squareSize * 4 + offsetY, piece: null };
+    board.g3 = { x: squareSize * 6 + offsetX, y: squareSize * 5 + offsetY, piece: "b" };
+    board.g2 = { x: squareSize * 6 + offsetX, y: squareSize * 6 + offsetY, piece: null };
+    board.g1 = { x: squareSize * 6 + offsetX, y: squareSize * 7 + offsetY, piece: "b" };
+    board.h8 = { x: squareSize * 7 + offsetX, y: squareSize * 0 + offsetY, piece: "r" };
+    board.h7 = { x: squareSize * 7 + offsetX, y: squareSize * 1 + offsetY, piece: null };
+    board.h6 = { x: squareSize * 7 + offsetX, y: squareSize * 2 + offsetY, piece: "r" };
+    board.h5 = { x: squareSize * 7 + offsetX, y: squareSize * 3 + offsetY, piece: null };
+    board.h4 = { x: squareSize * 7 + offsetX, y: squareSize * 4 + offsetY, piece: null };
+    board.h3 = { x: squareSize * 7 + offsetX, y: squareSize * 5 + offsetY, piece: null };
+    board.h2 = { x: squareSize * 7 + offsetX, y: squareSize * 6 + offsetY, piece: "b" };
+    board.h1 = { x: squareSize * 7 + offsetX, y: squareSize * 7 + offsetY, piece: null };
+    moves.length = 1; // empty out moves array
+    moves[0] = JSON.parse(JSON.stringify(board)); // deep copy of board
+    playerMove();
 }
+
+/*
+	begining of player move:
+    	1. determine color of player
+        2. check all pieces of that color for possible jumps
+    if there are jumps to be made:
+    	1. highlight all jumping moves
+        2. enable clicks on the jumpFrom square
+          2a. if that piece can jump in more than one direction
+          2b. enable clicks on jumpTo square
+          2c. allow reselection of jumping piece with another click on jumpFrom square
+        3. move that piece
+        4. remove jumped piece
+        5. check for making king
+        	5a. if king made, end move
+        6. recheck if there are jumps to be made
+        	6a. if there are more jumps with that specific piece, repeat process 1-6
+            6b. if there aren't any more jumps with that specific piece, end move
+    if there aren't any jumps to be made:
+    	1. enable mouse down/move/up dragging
+        2. enforce one diagonal square in proper direction
+        3. landing square must be empty
+        4. remove mouse down/move/up events
+        5. check for making king
+        6. end move
+    end move:
+        1. save new board position (state), which ends the turn
+        2. check for game over
+*/
+
+/* move controllers */
+
+function playerMove(){
+	let color = getCurrentPlayerColor(),
+        board = getCurrentBoard(),
+        jumps = getJumps(board, color);
+  	if (jumps.length) forceJump(board, jumps);
+  	else normalMove();
+}
+
+function forceJump(board, jumps){
+
+}
+
+function normalMove(){
+
+}
+
+
+/* sensors */
+
+function getJumps(board, color){
+  	let jumps = [];
+	//find all jumps for color
+	for (let sq in board){ //sq will be "a1", "b2", etc.
+    	if (sq.piece && sq.piece[0] === color){
+        	if (color === "b" || sq.piece === "rk"){
+              	let northJumps = getNorthJumps(board, sq);
+              	if (northJumps.length) jumps.push(northJumps);
+            }
+          	if (color === "r" || sq.piece === "bk"){
+              	let southJumps = getSouthJumps(board, sq);
+              	if (southJumps.length) jumps.push(southJumps);
+            }
+        }
+    }
+  	//return array of moveFrom-moveTo options;
+  	return jumps;
+}
+
+function getNorthJumps(board, sq){
+	let jumps = [];
+    	color = board[sq].piece[0],
+    	nw1 = getFile(sq[0], -1) + getRank(sq[1], 1),
+        nw2 = getFile(sq[0], -2) + getRank(sq[1], 2),
+        ne1 = getFile(sq[0], 1) + getRank(sq[1], 1),
+        ne2 = getFile(sq[0], 2) + getRank(sq[1], 2);
+  	if (board[nw1] && board[nw1].piece[0] !== color && board[nw2] && board[nw2].piece === null){
+      	let fromSq = sq,
+            toSq = nw2;
+    	jumps.push({fromSq, toSq});
+    }
+  	if (board[ne1] && board[ne1].piece[0] !== color && board[ne2] && board[ne2].piece === null){
+    	let fromSq = sq,
+            toSq = ne2;
+      	jumps.push({fromSq, toSq});
+    }
+  	return jumps;
+}
+
+function getSouthJumps(board, sq){
+	let jumps = [];
+    	color = board[sq].piece[0],
+    	sw1 = getFile(sq[0], -1) + getRank(sq[1], -1),
+        sw2 = getFile(sq[0], -2) + getRank(sq[1], -2),
+        se1 = getFile(sq[0], 1) + getRank(sq[1], -1),
+        se2 = getFile(sq[0], 2) + getRank(sq[1], -2);
+  	if (board[sw1] && board[sw1].piece[0] !== color && board[sw2] && board[sw2].piece === null){
+      	let fromSq = sq,
+            toSq = sw2;
+    	jumps.push({fromSq, toSq});
+    }
+  	if (board[se1] && board[se1].piece[0] !== color && board[se2] && board[se2].piece === null){
+    	let fromSq = sq,
+            toSq = se2;
+      	jumps.push({fromSq, toSq});
+    }
+  	return jumps;
+}
+
+
+/* helpers */
+
+function getCurrentPlayerColor(){
+    // if even number of moves in moves array, it's black's turn, otherwise red's
+    return moves.length % 2 === 0 ? "r" : "b";
+}
+
+function getCurrentBoard(){
+  	//most recent board state, with all piece positions
+	return moves[moves.length-1];
+}
+
+function getRank(rank, shift){ //rank will be "1", "2", etc.; shift will be -1, +1, -2, +2, etc.
+	let rankNum = Number(rank),
+        newRankNum = rankNum + shift;
+  	//reject less than 0 or greater than 8
+  	if (newRankNum < 0 || newRankNum > 8) return undefined;
+  	return newRankNum.toString();
+}
+
+function getFile(file, shift){ //file will be "a", "b", etc.; shift will be -1, +1, -2, +2, etc.
+	let fileNum = file.charCodeAt(0),
+        newFileNum = fileNum + shift;
+  	//reject less than "a" or greater than "h"
+  	if (newFileNum < 97 || newFileNum > 104) return undefined;
+  	return String.fromCharCode(newFileNum);
+}
+
+
+////////////////////////////////////////////////////////////////////// delete below this line
 
     /* EVENT HANDLING */
     function handleMousedown(e) {
@@ -230,24 +383,26 @@ function setupBoard() {
           newBoard[dragTo].piece = piece;
           //remove if jumped
           if (newBoard[jumped]) {//is there another jump with same piece
-            newBoard[jumped].piece = null;
-          //   while (anotherJump(newBoard)) {
-          //     handleJump ();
-          //
-          //   }
-           }
-
-          //add another board to the moves array
-          moves.push(newBoard);
-          //update board/pieces display
-          drawBoard();
-          drawPieces();
-          //reset drag variables
-          dragFrom = null;
-          dragTo = null;
-          dragging = false;
+				newBoard[jumped].piece = null;
+            	checkAnotherJump(newBoard, dragTo);
+          }
+          else {
+          	  finishMove(newBoard);
+          }
         }
       }
+
+	function finishMove(newBoard){
+    	//add another board to the moves array
+        moves.push(newBoard);
+        //update board/pieces display
+        drawBoard();
+        drawPieces();
+        //reset drag variables
+        dragFrom = null;
+        dragTo = null;
+        dragging = false;
+    }
 
       function isValidMove(square) { //return true or false
         let fromSq = dragFrom,
@@ -288,20 +443,59 @@ function setupBoard() {
         }
         return false;
       }
-      // function anotherJump(newBoard) {
-      //   var movingPiece = newBoard[dragTo];
-      //   if  (["b","bk", "rk" ].includes(movingPiece) && //if there is different color piece diagonally, check to see 2:2 is empty square
-      //   if  (["r","rk", "bk" ].includes(movingPiece)
-      //   the moving piece is black and if there is a red piece on file 1 + rank 1 and there is empty space file 2 and rank 2 make jumpedPiece
-      //   if the moving is a red piecce there is a black peice file 1 + rank 1 and there is
-           //return true or false
-        // how many ranks and files for the next moves
-        // is it 1:1 or 2:2, if it is 2:2 that means its a jump
-        //if it is more than a certain amount that means it will make a jump
-        // if the piece has a 2:2 move and there is no piece on the landing square then it can return true
-        // opposing piece and landing space that is empty
-        // one direction for black piece, one direction fro red piece, and all directions for king piece
-      // }
+
+	function checkAnotherJump(board, fromSq){
+    	if (jumpExists(board, fromSq)) {
+        	handleJump(board, fromSq);
+        }
+      	else {
+        	finishMove(board);
+        }
+    }
+
+	function handleJump(board){
+    	//cue player to make next jump in jump sequence
+      	//create new board after new jump
+      	//then call checkAnotherJump with the new board
+    }
+
+
+      function jumpExists(board, fromSq) {
+        var movingPiece = board[fromSq].piece, //"r", "b", "rk", "bk"
+            color = movingPiece[0],
+            file = fromSq[0], //"a", "b", ..., "g"
+            fileNum = file.charCodeAt(0), //97, 98, ..., 104
+            rank = Number(fromSq[1]); //1, 2, ..., 8
+        if  (["b","bk", "rk" ].includes(movingPiece)){
+          	//northwest
+          	let nw1 = String.fromCharCode(fileNum-1) + (rank+1),
+                nw2 = String.fromCharCode(fileNum-2) + (rank+2);
+          	if (board[nw1] && board[nw1].piece[0] !== color && board[nw2] === null){
+                return true;
+     		}
+            //northeast
+            let ne1 = String.fromCharCode(fileNum+1) + (rank+1),
+                ne2 = String.fromCharCode(fileNum+2) + (rank+2);
+          	if (board[ne1] && board[ne1].piece[0] !== color && board[ne2] === null){
+            	return true;
+            }
+		}
+         if  (["r","rk", "bk" ].includes(movingPiece)){
+           //southwest
+           let sw1 = String.fromCharCode(fileNum-1) + (rank-1),
+               sw2 = String.fromCharCode(fileNum-2) + (rank-2);
+           if (board[sw1] && board [sw1].piece[0] !== color && board[sw2] === null){
+             	return true;
+           }
+           //southeast
+           let se1 = String.fromCharCode(fileNum+1) + (rank-1),
+               se2 = String.fromCharCode(fileNum+2) + (rank-2);
+           if (board[se1] && board[se1].piece[0] !== color && board[se2] === null){
+              return true;
+           }
+		}
+		return false;
+      }
 
 /* HELPERS */
 function whoseTurn(){
