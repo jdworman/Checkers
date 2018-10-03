@@ -544,6 +544,6 @@ function rotateBoard(){
 function redOrBlack(e){
 	let button = e.target;
   	button.setAttribute("disabled", "disabled");
-  	if (Math.random() < 0.5) button.textContent = "You Play As Red";
-  	else button.textContent = "You Play As Black";
+  	if (Math.random() < 0.5) button.textContent = "The Eldest Person Plays As Red";
+  	else button.textContent = "The Eldest Person Plays As Black";
 }
