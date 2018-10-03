@@ -38,7 +38,6 @@ html, body {
 }
 
 body {
-  background-color: steelblue;
   display: grid;
   grid-template-rows: 150px auto 100px;
   grid-template-columns: minmax(200px, 3fr) 9fr;
@@ -143,4 +142,26 @@ main {
 
 .message .message-text {
   margin: 10px;
+}
+#rotate {
+    grid-area: nav;
+    background-color: #4CAF50;
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+}
+
+#randomColor {
+  background-color: #4CAF50;
+  border: none;
+  color: white;
+  padding: 15px 32px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
 }

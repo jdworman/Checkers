@@ -5,15 +5,15 @@
      </header>
 
       <nav>
+          <button id="rotate">Rotate Board</button>
     <section id="user-info">
     <%= render "users/card", locals: {user: @user}  %>
   </section>
+      <button id="randomColor">Play As Red or Black?</button>
       </nav>
         <main>
         <div id="user-name" data-name="<%= @user.name %>"></div>
 
-        <button id="rotate">Rotate Board</button>
-                <button id="randomColor">Play As Red or Black?</button>
     <canvas></canvas>
     <canvas></canvas>
 
