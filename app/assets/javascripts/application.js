@@ -18,24 +18,23 @@
 //= require_tree .
 
 
+const useImages = true;
 
 const boardSize = 400,
       darkSqColor = "brown",
       lightSqColor = "beige",
-      uiColor = "red",
+      uiColor = "lime",
       pieces = {},
       moves = [],
-      board = {},
-      bcount = 12,
-      rcount = 12;
+      board = {};
 
 
 var boardCanvas, boardCtx, uiCanvas, uiCtx, width, height,
+	squareSize, canvasPosition, rotated = false,
 	dragging = false, dragFrom, dragTo,
    	preloadedImages = 0;
-setupPieces();
 
-
+if (useImages) setupPieces();
 document.addEventListener("DOMContentLoaded", init);
 
 /* SETUP */
@@ -46,14 +45,15 @@ function init () {
     uiCtx = uiCanvas.getContext("2d");
     width = boardCanvas.width = uiCanvas.width = boardSize;
     height = boardCanvas.height = uiCanvas.height = boardSize;
-
-    uiCanvas.addEventListener("mousedown", handleMousedown);
-    uiCanvas.addEventListener("mousemove", handleMousemove);
-    uiCanvas.addEventListener("mouseup", handleMouseup);
-
-    // setupPieces();
+	squareSize = boardSize / 8;
+	canvasPosition = uiCanvas.getBoundingClientRect();
+	//
+	document.querySelector("#rotate").addEventListener("click", rotateBoard);
+  	document.querySelector("#randomColor").addEventListener("click", redOrBlack);
+	//
     setupBoard();
     drawBoard();
+	if (!useImages) drawPieces();
 }
 
 function setupPieces() {
@@ -79,7 +79,6 @@ function imagesLoaded(){
 }
 
 function setupBoard() { //starts or restarts the game from the begining position
-    let squareSize = boardSize/8;
     let canvasPosition = uiCanvas.getBoundingClientRect(),
         offsetX = 0,
         offsetY = 0;
@@ -149,91 +148,210 @@ function setupBoard() { //starts or restarts the game from the begining position
     board.h1 = { x: squareSize * 7 + offsetX, y: squareSize * 7 + offsetY, piece: null };
     moves.length = 1; // empty out moves array
     moves[0] = JSON.parse(JSON.stringify(board)); // deep copy of board
-    playerMove();
+	//
+    playerTurn();
 }
 
-/*
-	begining of player move:
-    	1. determine color of player
-        2. check all pieces of that color for possible jumps
-    if there are jumps to be made:
-    	1. highlight all jumping moves
-        2. enable clicks on the jumpFrom square
-          2a. if that piece can jump in more than one direction
-          2b. enable clicks on jumpTo square
-          2c. allow reselection of jumping piece with another click on jumpFrom square
-        3. move that piece
-        4. remove jumped piece
-        5. check for making king
-        	5a. if king made, end move
-        6. recheck if there are jumps to be made
-        	6a. if there are more jumps with that specific piece, repeat process 1-6
-            6b. if there aren't any more jumps with that specific piece, end move
-    if there aren't any jumps to be made:
-    	1. enable mouse down/move/up dragging
-        2. enforce one diagonal square in proper direction
-        3. landing square must be empty
-        4. remove mouse down/move/up events
-        5. check for making king
-        6. end move
-    end move:
-        1. save new board position (state), which ends the turn
-        2. check for game over
-*/
 
 /* move controllers */
 
-function playerMove(){
+function playerTurn(){
 	let color = getCurrentPlayerColor(),
         board = getCurrentBoard(),
-        jumps = getJumps(board, color);
-  	if (jumps.length) forceJump(board, jumps);
-  	else normalMove();
+        possibleMoves = getMoves(board, color);
+	//no moves to play? game over.
+  	if (!possibleMoves.length) return gameOver();
+	//game's not over yet
+  	playerMove(board, possibleMoves);
 }
 
-function forceJump(board, jumps){
-
+function finishMove(board){
+	//add another board to the moves array
+	moves.push(board);
+	//update board/pieces display
+	clearUi();
+	drawBoard();
+	drawPieces();
+	playerTurn();
 }
 
-function normalMove(){
 
+/* game controllers */
+
+function gameOver(){
+	//end game state; track wins/losses; restart game
+  	let loser = getCurrentPlayerColor();
+  	if (loser === "r") alert("Black wins!");
+	else alert("Red wins!");
+	setupBoard();
+	drawBoard();
+	drawPieces();
+  	document.querySelector("#redOrBlack").removeAttribute("disabled");
+}
+
+
+/* user event handlers */
+
+function playerMove(board, possibleMoves){
+	let fromSqPossibles = [],
+		move = null;
+	startEvents();
+	//
+	function startEvents(){
+		highlightFromSquares(board, possibleMoves);
+		uiCanvas.addEventListener("mousedown", handleMousedown);
+	}
+
+	function handleMousedown(e){
+		let x = e.clientX - canvasPosition.x,
+			y = e.clientY - canvasPosition.y,
+			sq;
+		if (rotated){
+			x = boardSize - x;
+			y = boardSize - y;
+		}
+		sq = getSquareByXY(x, y);
+		fromSqPossibles = possibleMoves.filter(m => m.fromSq === sq);
+		if (!fromSqPossibles.length) return;
+		highlightToSquares(board, fromSqPossibles);
+		uiCanvas.removeEventListener("mousedown", handleMousedown)
+		uiCanvas.addEventListener("mousemove", handleMousemove);
+		uiCanvas.addEventListener("mouseup", handleMouseup);
+	}
+
+	function handleMousemove(e){
+		let x = e.clientX - canvasPosition.x,
+			y = e.clientY - canvasPosition.y,
+			sq;
+		if (rotated){
+			x = boardSize - x;
+			y = boardSize - y;
+		}
+		sq = getSquareByXY(x, y);
+		move = fromSqPossibles.filter(m => m.toSq === sq);
+		if (!move.length){
+			move = null;
+			return highlightToSquares(board, fromSqPossibles);
+		}
+		move = move[0];
+		connectSquares(board, move.fromSq, move.toSq);
+	}
+
+	function handleMouseup(e){
+		uiCanvas.removeEventListener("mousemove", handleMousemove);
+		uiCanvas.removeEventListener("mouseup", handleMouseup);
+		if (!move){
+			startEvents();
+			return highlightFromSquares(board, possibleMoves);
+		}
+      	//move piece
+      	board[move.toSq].piece = board[move.fromSq].piece;
+        board[move.fromSq].piece = null;
+		//make jump or normal move?
+		if (Math.abs(Number(move.fromSq[1]) - Number(move.toSq[1])) === 1){
+        	//normal move, check for king
+			if (board[move.toSq].piece === "r" && move.toSq[1] === "1"){
+				board[move.toSq].piece = "rk";
+			}
+			if (board[move.toSq].piece === "b" && move.toSq[1] === "8"){
+				board[move.toSq].piece = "bk";
+			}
+			//finish player turn
+          	return finishMove(board);
+        }
+      	//remove jumped piece
+      	if (move.toSq === getFile(move.fromSq[0], -2) + getRank(move.fromSq[1], 2)){
+        	//nw
+          	let jumpedSq = getFile(move.fromSq[0], -1) + getRank(move.fromSq[1], 1);
+          	board[jumpedSq].piece = null;
+        }
+      	else if (move.toSq === getFile(move.fromSq[0], 2) + getRank(move.fromSq[1], 2)){
+        	//ne
+          	let jumpedSq = getFile(move.fromSq[0], 1) + getRank(move.fromSq[1], 1);
+          	board[jumpedSq].piece = null;
+        }
+      	else if (move.toSq === getFile(move.fromSq[0], -2) + getRank(move.fromSq[1], -2)){
+        	//sw
+          	let jumpedSq = getFile(move.fromSq[0], -1) + getRank(move.fromSq[1], -1);
+          	board[jumpedSq].piece = null;
+        }
+      	else {
+        	//se
+          	let jumpedSq = getFile(move.fromSq[0], 1) + getRank(move.fromSq[1], -1);
+          	board[jumpedSq].piece = null;
+        }
+		//check for king, if so finish player turn
+		if (board[move.toSq].piece === "r" && move.toSq[1] === "1"){
+			board[move.toSq].piece = "rk";
+			return finishMove(board);
+		}
+		if (board[move.toSq].piece === "b" && move.toSq[1] === "8"){
+			board[move.toSq].piece = "bk";
+			return finishMove(board);
+		}
+      	//check for further jumps
+		let color = board[move.toSq].piece[0];
+      	possibleMoves = getJumps(board, color, move.toSq);
+		//no extra jumps, finish player turn
+		if (!possibleMoves.length) return finishMove(board);
+		//extra jumps must be made, continue
+		drawBoard();
+		drawPieces();
+		startEvents();
+	}
 }
 
 
 /* sensors */
 
-function getJumps(board, color){
+function getMoves(board, color, fromSq){
+	let possibleMoves = [];
+	possibleMoves.push(...getJumps(board, color, fromSq));
+	if (!possibleMoves.length) possibleMoves.push(...getNormalMoves(board, color));
+	return possibleMoves;
+}
+
+function getJumps(board, color, fromSq){
   	let jumps = [];
+	//find all jumps for one specific square
+	if (fromSq){
+		let directionJumps = [];
+		if (color === "b" || board[fromSq].piece === "rk") directionJumps.push(...getNorthJumps(board, fromSq));
+		if (color === "r" || board[fromSq].piece === "bk") directionJumps.push(...getSouthJumps(board, fromSq));
+		if (directionJumps.length) jumps.push(...directionJumps);
+	}
 	//find all jumps for color
-	for (let sq in board){ //sq will be "a1", "b2", etc.
-    	if (sq.piece && sq.piece[0] === color){
-        	if (color === "b" || sq.piece === "rk"){
-              	let northJumps = getNorthJumps(board, sq);
-              	if (northJumps.length) jumps.push(northJumps);
-            }
-          	if (color === "r" || sq.piece === "bk"){
-              	let southJumps = getSouthJumps(board, sq);
-              	if (southJumps.length) jumps.push(southJumps);
-            }
-        }
-    }
+	else {
+		for (let sq in board){ //sq will be "a1", "b2", etc.
+			if (board[sq].piece && board[sq].piece[0] === color){
+				if (color === "b" || board[sq].piece === "rk"){
+					let northJumps = getNorthJumps(board, sq);
+					if (northJumps.length) jumps.push(...northJumps);
+				}
+				if (color === "r" || board[sq].piece === "bk"){
+					let southJumps = getSouthJumps(board, sq);
+					if (southJumps.length) jumps.push(...southJumps);
+				}
+			}
+		}
+	}
   	//return array of moveFrom-moveTo options;
   	return jumps;
 }
 
 function getNorthJumps(board, sq){
-	let jumps = [];
+	let jumps = [],
     	color = board[sq].piece[0],
     	nw1 = getFile(sq[0], -1) + getRank(sq[1], 1),
         nw2 = getFile(sq[0], -2) + getRank(sq[1], 2),
         ne1 = getFile(sq[0], 1) + getRank(sq[1], 1),
         ne2 = getFile(sq[0], 2) + getRank(sq[1], 2);
-  	if (board[nw1] && board[nw1].piece[0] !== color && board[nw2] && board[nw2].piece === null){
+  	if (board[nw1] && board[nw1].piece && board[nw1].piece[0] !== color && board[nw2] && board[nw2].piece === null){
       	let fromSq = sq,
             toSq = nw2;
     	jumps.push({fromSq, toSq});
     }
-  	if (board[ne1] && board[ne1].piece[0] !== color && board[ne2] && board[ne2].piece === null){
+  	if (board[ne1] && board[ne1].piece && board[ne1].piece[0] !== color && board[ne2] && board[ne2].piece === null){
     	let fromSq = sq,
             toSq = ne2;
       	jumps.push({fromSq, toSq});
@@ -242,23 +360,73 @@ function getNorthJumps(board, sq){
 }
 
 function getSouthJumps(board, sq){
-	let jumps = [];
+	let jumps = [],
     	color = board[sq].piece[0],
     	sw1 = getFile(sq[0], -1) + getRank(sq[1], -1),
         sw2 = getFile(sq[0], -2) + getRank(sq[1], -2),
         se1 = getFile(sq[0], 1) + getRank(sq[1], -1),
         se2 = getFile(sq[0], 2) + getRank(sq[1], -2);
-  	if (board[sw1] && board[sw1].piece[0] !== color && board[sw2] && board[sw2].piece === null){
+  	if (board[sw1] && board[sw1].piece && board[sw1].piece[0] !== color && board[sw2] && board[sw2].piece === null){
       	let fromSq = sq,
             toSq = sw2;
     	jumps.push({fromSq, toSq});
     }
-  	if (board[se1] && board[se1].piece[0] !== color && board[se2] && board[se2].piece === null){
+  	if (board[se1] && board[se1].piece && board[se1].piece[0] !== color && board[se2] && board[se2].piece === null){
     	let fromSq = sq,
             toSq = se2;
       	jumps.push({fromSq, toSq});
     }
   	return jumps;
+}
+
+function getNormalMoves(board, color){
+	let normalMoves = [];
+	for (let sq in board){
+		let piece = board[sq].piece;
+		if (piece && piece[0] === color){
+			if (color === "b" || piece === "rk"){
+				//north
+				let nw1 = getFile(sq[0], -1) + getRank(sq[1], 1),
+					ne1 = getFile(sq[0], 1) + getRank(sq[1], 1);
+				if (board[nw1] && board[nw1].piece === null){
+					let fromSq = sq,
+						toSq = nw1;
+					normalMoves.push({fromSq, toSq});
+				}
+				if (board[ne1] && board[ne1].piece === null){
+					let fromSq = sq,
+						toSq = ne1;
+					normalMoves.push({fromSq, toSq});
+				}
+
+			}
+			if (color === "r" || piece === "bk"){
+				//south
+				let sw1 = getFile(sq[0], -1) + getRank(sq[1], -1),
+					se1 = getFile(sq[0], 1) + getRank(sq[1], -1);
+				if (board[sw1] && board[sw1].piece === null){
+					let fromSq = sq,
+						toSq = sw1;
+					normalMoves.push({fromSq, toSq});
+				}
+				if (board[se1] && board[se1].piece === null){
+					let fromSq = sq,
+						toSq = se1;
+					normalMoves.push({fromSq, toSq});
+				}
+			}
+		}
+	}
+	return normalMoves;
+}
+
+function isGameOver(board){
+	//make sure there's at least one piece of current player color
+	let color = getCurrentPlayerColor();
+	for (let sq in board){
+		if (sq.piece && sq.piece[0] === color) return false;
+	}
+	return true;
 }
 
 
@@ -290,253 +458,92 @@ function getFile(file, shift){ //file will be "a", "b", etc.; shift will be -1, 
   	return String.fromCharCode(newFileNum);
 }
 
-
-////////////////////////////////////////////////////////////////////// delete below this line
-
-    /* EVENT HANDLING */
-    function handleMousedown(e) {
-        if (dragFrom) {
-          dragging = true;
-        }
-      }
-
-      function handleMousemove(e) {
-        uiCtx.clearRect(0, 0, width, height);
-        if (dragging) {
-          handleDrag(e);
-        } else { // not dragging but hovering
-          handleHover(e);
-        }
-      }
-
-      function handleDrag(e) {
-        let squareSize = boardSize / 8,
-          player = whoseTurn(), // "b" or "r"
-          lastPosition = moves[moves.length - 1],
-          canvasPosition = uiCanvas.getBoundingClientRect(),
-          x = e.clientX - canvasPosition.x,
-          y = e.clientY - canvasPosition.y,
-          square = getSquareByXY(x,y); // find square from mousemove event object;
-        if (jumped = isValidMove(square)) {
-          //currently, move a piece onto ANY empty square (!lastPosition[square].piece) or an opponent's square (lastPosition[square].piece[0] !== player)
-          // if so, highlight square
-          uiCtx.lineWidth = 4;
-          uiCtx.strokeStyle = uiColor;
-          uiCtx.strokeRect(lastPosition[square].x + 2, lastPosition[square].y + 2, squareSize - 4, squareSize - 4);
-          // draw line from original square
-          uiCtx.lineWidth = 2;
-          uiCtx.beginPath();
-          let x1 = lastPosition[dragFrom].x + squareSize / 2,
-            y1 = lastPosition[dragFrom].y + squareSize / 2,
-            x2 = lastPosition[square].x + squareSize / 2,
-            y2 = lastPosition[square].y + squareSize / 2;
-          uiCtx.moveTo(x1, y1);
-          uiCtx.lineTo(x2, y2);
-          uiCtx.stroke();
-          dragTo = square;
-        } else {
-          dragTo = null;
-        }
-      }
-
-      function handleHover(e) {
-        let squareSize = boardSize / 8,
-          player = whoseTurn(), // "w" or "b"
-          lastPosition = moves[moves.length - 1],
-          canvasPosition = uiCanvas.getBoundingClientRect(),
-          x = e.clientX - canvasPosition.x,
-          y = e.clientY - canvasPosition.y,
-          square = getSquareByXY(x,y); // find square from mousemove event object;
-        // check if piece of player's color is on that square
-        if (lastPosition[square].piece && lastPosition[square].piece[0] === player) {
-          // if so, highlight square
-          uiCtx.lineWidth = 4;
-          uiCtx.strokeStyle = uiColor;
-          uiCtx.strokeRect(lastPosition[square].x + 2, lastPosition[square].y + 2, squareSize - 4, squareSize - 4);
-          dragFrom = square;
-        } else {
-          dragFrom = null;
-        }
-      }
-
-      function handleMouseup(e) {
-        console.log(dragTo)
-        if (dragging) {
-          if (dragTo === null) { //nothing happens if player tries to move to square piece is already on
-            dragFrom = null;
-            dragTo = null;
-            dragging = false;
-            return;
-          }
-          // make player move...
-          //change game state
-          let lastPosition = moves[moves.length - 1],
-            newBoard = JSON.parse(JSON.stringify(lastPosition)),
-            piece = newBoard[dragFrom].piece;
-          //remove piece from old square
-          newBoard[dragFrom].piece = null;
-          newBoard[dragTo].piece = piece;
-          //check for king
-          if(piece === "b" && dragTo[1] === "8") piece = "bk";
-          if(piece === "r" && dragTo[1] === "1") piece = "rk";
-          //add piece to new square
-          newBoard[dragTo].piece = piece;
-          //remove if jumped
-          if (newBoard[jumped]) {//is there another jump with same piece
-				newBoard[jumped].piece = null;
-            	checkAnotherJump(newBoard, dragTo);
-          }
-          else {
-          	  finishMove(newBoard);
-          }
-        }
-      }
-
-	function finishMove(newBoard){
-    	//add another board to the moves array
-        moves.push(newBoard);
-        //update board/pieces display
-        drawBoard();
-        drawPieces();
-        //reset drag variables
-        dragFrom = null;
-        dragTo = null;
-        dragging = false;
-    }
-
-      function isValidMove(square) { //return true or false
-        let fromSq = dragFrom,
-          fromFile = fromSq[0], //"a", "b", etc.
-          fromRank = Number(fromSq[1]), //"3", "4", etc.
-          fromFileNum = fromFile.charCodeAt(0), //number representation of letter
-          movingPieceColor = moves[moves.length - 1][fromSq].piece,
-          toSq = square,
-          toFile = toSq[0], //"a", "b", etc.
-          toRank = Number(toSq[1]), //"3", "4", etc.
-          toFileNum = toFile.charCodeAt(0), //number representation of letter
-          pieceOnToSq = moves[moves.length - 1][toSq].piece; //null, "b", or "r"
-
-        //can't move onto square with own piece already on it
-        if (pieceOnToSq === movingPieceColor) return false;
-        //move onto empty square must be forward and diagonal
-        if (!pieceOnToSq) {
-          //moving one rank
-          if (["b","bk", "rk"].includes(movingPieceColor) && toRank === fromRank + 1 && Math.abs(toFileNum - fromFileNum) === 1) return true;
-          if (["r","bk", "rk"].includes(movingPieceColor) && toRank === fromRank - 1 && Math.abs(toFileNum - fromFileNum) === 1) return true;
-          //moving two ranks
-          if (["b","bk", "rk"].includes(movingPieceColor) && toRank === fromRank + 2 && Math.abs(toFileNum - fromFileNum) === 2) {
-            //is there a red piece to jump over?
-            let jumpedSq = String.fromCharCode(fromFileNum + (toFileNum - fromFileNum) / 2) + (toRank - 1),
-              jumpedPiece = moves[moves.length - 1][jumpedSq].piece;
-              if (["b", "bk"].includes(movingPieceColor) && ["r", "rk"].includes(jumpedPiece))return jumpedSq;
-              if (["r", "rk"].includes(movingPieceColor) && ["b", "bk"].includes(jumpedPiece))return jumpedSq;
-            return false;
-          }
-          if (["r","bk", "rk"].includes(movingPieceColor) && toRank === fromRank - 2 && Math.abs(toFileNum - fromFileNum) === 2) {
-            //is there a black piece to jump over?
-            let jumpedSq = String.fromCharCode(fromFileNum + (toFileNum - fromFileNum) / 2) + (toRank + 1),
-              jumpedPiece = moves[moves.length - 1][jumpedSq].piece;
-              if (["b", "bk"].includes(movingPieceColor) && ["r", "rk"].includes(jumpedPiece))return jumpedSq;
-              if (["r", "rk"].includes(movingPieceColor) && ["b", "bk"].includes(jumpedPiece))return jumpedSq;
-            return false;
-          }
-        }
-        return false;
-      }
-
-	function checkAnotherJump(board, fromSq){
-    	if (jumpExists(board, fromSq)) {
-        	handleJump(board, fromSq);
-        }
-      	else {
-        	finishMove(board);
-        }
-    }
-
-	function handleJump(board){
-    	//cue player to make next jump in jump sequence
-      	//create new board after new jump
-      	//then call checkAnotherJump with the new board
-    }
-
-
-      function jumpExists(board, fromSq) {
-        var movingPiece = board[fromSq].piece, //"r", "b", "rk", "bk"
-            color = movingPiece[0],
-            file = fromSq[0], //"a", "b", ..., "g"
-            fileNum = file.charCodeAt(0), //97, 98, ..., 104
-            rank = Number(fromSq[1]); //1, 2, ..., 8
-        if  (["b","bk", "rk" ].includes(movingPiece)){
-          	//northwest
-          	let nw1 = String.fromCharCode(fileNum-1) + (rank+1),
-                nw2 = String.fromCharCode(fileNum-2) + (rank+2);
-          	if (board[nw1] && board[nw1].piece[0] !== color && board[nw2] === null){
-                return true;
-     		}
-            //northeast
-            let ne1 = String.fromCharCode(fileNum+1) + (rank+1),
-                ne2 = String.fromCharCode(fileNum+2) + (rank+2);
-          	if (board[ne1] && board[ne1].piece[0] !== color && board[ne2] === null){
-            	return true;
-            }
-		}
-         if  (["r","rk", "bk" ].includes(movingPiece)){
-           //southwest
-           let sw1 = String.fromCharCode(fileNum-1) + (rank-1),
-               sw2 = String.fromCharCode(fileNum-2) + (rank-2);
-           if (board[sw1] && board [sw1].piece[0] !== color && board[sw2] === null){
-             	return true;
-           }
-           //southeast
-           let se1 = String.fromCharCode(fileNum+1) + (rank-1),
-               se2 = String.fromCharCode(fileNum+2) + (rank-2);
-           if (board[se1] && board[se1].piece[0] !== color && board[se2] === null){
-              return true;
-           }
-		}
-		return false;
-      }
-
-/* HELPERS */
-function whoseTurn(){
-      // if even number of moves in moves array, it's black's turn, otherwise red's
-    return moves.length % 2 === 0 ? "r" : "b";
-
-}
 function getSquareByXY(x, y){
-    let squareSize = boardSize/8,
-          lastPosition = moves[moves.length-1];
-      for (let square in lastPosition){
-        if (lastPosition[square].x <= x && lastPosition[square].x + squareSize >= x &&
-            lastPosition[square].y <= y && lastPosition[square].y + squareSize >= y) return square;
-    }
+	let board = moves[0];
+	for (let square in board){
+		let bx = board[square].x,
+			by = board[square].y;
+		if (x < bx || y < by) continue;
+		if (x > bx + squareSize || y > by + squareSize) continue;
+		return square;
+	}
 }
 
-/* DRAWING */
+
+/* drawing */
+
 function drawBoard(){
-    let squareSize = boardSize/8,
-        isLightSq = true;
-    for (let x=0; x<width; x+=squareSize){
-        for (let y=0; y<height; y+=squareSize){
-            if (isLightSq) boardCtx.fillStyle = lightSqColor;
-            else boardCtx.fillStyle = darkSqColor;
-            boardCtx.fillRect(x, y, squareSize, squareSize);
-            isLightSq = !isLightSq;
-        }
-        isLightSq = !isLightSq;
-    }
+	let isLightSq = true;
+	for (let x=0; x<width; x+=squareSize){
+		for (let y=0; y<height; y+=squareSize){
+			if (isLightSq) boardCtx.fillStyle = lightSqColor;
+			else boardCtx.fillStyle = darkSqColor;
+			boardCtx.fillRect(x, y, squareSize, squareSize);
+			isLightSq = !isLightSq;
+		}
+		isLightSq = !isLightSq;
+	}
 }
 
-function drawPieces(){
-    let squareSize = boardSize/8;
-      let lastPosition = moves[moves.length-1]; // get last element of moves array
-    // boardCtx.fillStyle = "black"; // text placeholder
-    //   boardCtx.textBaseline="top"; // text placeholder
-    // boardCtx.font="30px Verdana"; // text placeholder
-    for (let square in lastPosition){ // iterate through the most recent game state
-        if (lastPosition[square].piece){
-            // boardCtx.fillText(lastPosition[square].piece, lastPosition[square].x, lastPosition[square].y); // text placeholder
-            boardCtx.drawImage(pieces[lastPosition[square].piece], lastPosition[square].x, lastPosition[square].y, squareSize, squareSize);
-        }
-    }
-  }
+function drawPieces(board){
+	if (!board) board = getCurrentBoard();
+	for (let square in board){
+		if (board[square].piece){
+			let sq = board[square];
+			if (useImages){
+				boardCtx.drawImage(pieces[sq.piece], sq.x, sq.y, squareSize, squareSize);
+			}
+			else {
+				boardCtx.fillStyle = "black";
+				boardCtx.textBaseline = "top";
+				boardCtx.font = "30px Verdana";
+				boardCtx.fillText(sq.piece, sq.x, sq.y);
+			}
+		}
+	}
+}
+
+function highlightFromSquares(board, possibleMoves){
+	clearUi();
+	possibleMoves.map(m => m.fromSq).forEach(sq => highlightSquare(board, sq));
+}
+
+function highlightToSquares(board, possibleMoves){
+	clearUi();
+	possibleMoves.map(m => m.toSq).forEach(sq => highlightSquare(board, sq));
+}
+
+function highlightSquare(board, square){
+	let sq = board[square];
+	uiCtx.lineWidth = 2;
+	uiCtx.strokeStyle = uiColor;
+	uiCtx.strokeRect(sq.x+2, sq.y+2, squareSize-4, squareSize-4);
+}
+
+function connectSquares(board, fromSq, toSq){
+	uiCtx.lineWidth = 2;
+	uiCtx.strokeStyle = uiColor;
+	uiCtx.beginPath();
+	uiCtx.moveTo(board[fromSq].x + squareSize/2, board[fromSq].y + squareSize/2);
+	uiCtx.lineTo(board[toSq].x + squareSize/2, board[toSq].y + squareSize/2);
+	uiCtx.stroke();
+}
+
+function clearUi(){
+	uiCtx.clearRect(0, 0, width, height);
+}
+
+
+/* game ui */
+
+function rotateBoard(){
+	boardCanvas.classList.toggle("rotate");
+	rotated = !rotated;
+}
+
+function redOrBlack(e){
+	let button = e.target;
+  	button.setAttribute("disabled", "disabled");
+  	if (Math.random() < 0.5) button.textContent = "You Play As Red";
+  	else button.textContent = "You Play As Black";
+}
