@@ -544,6 +544,7 @@ function drawPieces(board) {
 
 function highlightFromSquares(board, possibleMoves) {
   clearUi();
+  //possibleMoves.map(function(move) { return move.toSq });
   possibleMoves.map(m => m.fromSq).forEach(sq => highlightSquare(board, sq));
 }
 
@@ -586,92 +587,3 @@ function redOrBlack(e) {
   if (Math.random() < 0.5) button.textContent = "The Eldest Person Plays As Red";
   else button.textContent = "The Eldest Person Plays As Black";
 }
-
-// {
-//   "matches" => nil,
-//   "opponent_for:546437460-342489382-32432432" => "58738472830-4839284932-34898329483924",
-//   "opponent_for:58738472830-4839284932-34898329483924" => "546437460-342489382-32432432"
-// } # "546437460-342489382-32432432" red  "58738472830-4839284932-34898329483924" black
-//
-// {"action" => "", "msg" => ""}
-//
-// require_relative '../../config/redis'
-//
-// class GameChannel < ActionCable::ApplicationChannel
-//   def subscribed
-//     # ...
-//   end
-//
-//   def make_move(data)
-//   end
-// end
-//
-// var boardCanvas, rotated = false;
-//
-// var boardCanvas;
-// var rotated = false;
-//
-// document.getElementById("drag").addEventListener("drag", function() {
-//   dragging = true;
-//   // Do whatever
-//   dragging = false;
-// });
-//
-// if (dragging) {
-//   // Do this when we're dragging
-// }
-//
-// var moves = [];
-// moves.push("{}");
-// // moves == ["{}"];
-// moves.push("{}", "{}", "{...}");
-// // moves == ["{}", "{}", "{}", "{...}"];
-// jumps = [[0, 2], [1, 3]]
-// for var i = 0; i < jumps.length; i++ {
-//   moves.push(jumps[i]);
-// }
-// moves.push(...jumps);
-//
-// possibleMoves = [[1, 1], [-1, 1]];
-//
-// /*
-// newPossibleMoves = [];
-// for var i = 0; i < possibleMoves.length; i++ {
-//   newPossibleMoves.push(possibleMoves[i].toSq());
-// }
-// possibleMoves = newPossibleMoves;
-// */
-//
-// possibleMoves.map(function(move) { return move.toSq });
-//
-// function getRank(rank, shift) { //rank will be "1", "2", etc.; shift will be -1, +1, -2, +2, etc.
-//   let rankNum = Number(rank),
-//     newRankNum = rankNum + shift;
-//   //reject less than 0 or greater than 8
-//   if (newRankNum < 0 || newRankNum > 8) return undefined;
-//   return newRankNum.toString();
-// }
-//
-// function getFile(file, shift) { //file will be "a", "b", etc.; shift will be -1, +1, -2, +2, etc.
-//   let fileNum = file.charCodeAt(0),
-//     newFileNum = fileNum + shift;
-//   //reject less than "a" or greater than "h"
-//   if (newFileNum < 97 || newFileNum > 104) return undefined;
-//   return String.fromCharCode(newFileNum);
-// }
-//
-// function getSquareByXY(x, y) {
-//   let board = moves[0];
-//   for (let square in board) {
-//     let bx = board[square].x,
-//       by = board[square].y;
-//     if (x < bx || y < by) continue;
-//     if (x > bx + squareSize || y > by + squareSize) continue;
-//     return square;
-//   }
-// }
-//
-// possibleMoves.map(m => m.toSq);
-//
-// 'a'.ord # 97
-// 'h'.ord # 104
