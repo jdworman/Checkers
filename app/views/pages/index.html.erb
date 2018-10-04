@@ -9,7 +9,8 @@
     <section id="user-info">
     <%= render "users/card", locals: {user: @user}  %>
   </section>
-      <button id="randomColor">Play As Red or Black?</button>
+      <button id="randomColor">Play As Red or Black?</button><br><br>
+      <p id="turn"></p>
       </nav>
         <main>
         <div id="user-name" data-name="<%= @user.name %>"></div>
